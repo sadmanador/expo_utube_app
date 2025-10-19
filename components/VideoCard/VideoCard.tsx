@@ -56,7 +56,7 @@ export default VideoCard;
 
 const styles = StyleSheet.create({
   card: { marginBottom: 20 },
-  thumbnail: { width: "100%", height: 200, borderRadius: 10 },
+  thumbnail: { width: "100%", height: 200},
   durationBox: {
     position: "absolute",
     right: 8,

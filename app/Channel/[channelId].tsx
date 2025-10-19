@@ -160,6 +160,7 @@ const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   banner: { width: "100%", height: 150, borderRadius: 8, marginBottom: 12 },
   channelHeader: {
+    padding: 10,
     flexDirection: "row",
     marginBottom: 16,
     alignItems: "flex-start",
