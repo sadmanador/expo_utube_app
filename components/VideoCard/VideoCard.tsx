@@ -14,6 +14,10 @@ const VideoCard: React.FC<VideoCardProps> = ({ item }) => {
   const router = useRouter();
 
   const videoId = typeof item.id === "string" ? item.id : item.id.videoId;
+  const duration = item.contentDetails?.duration || ""; // use only contentDetails.duration
+  const views = item.statistics?.viewCount
+    ? value_converter(Number(item.statistics.viewCount))
+    : "";
 
   return (
     <View style={styles.card}>
@@ -22,11 +26,11 @@ const VideoCard: React.FC<VideoCardProps> = ({ item }) => {
           source={{ uri: item.snippet.thumbnails.medium.url }}
           style={styles.thumbnail}
         />
-        <View style={styles.durationBox}>
-          <Text style={styles.durationText}>
-            {parseYouTubeDuration(item.contentDetails.duration)}
-          </Text>
-        </View>
+        {duration ? (
+          <View style={styles.durationBox}>
+            <Text style={styles.durationText}>{parseYouTubeDuration(duration)}</Text>
+          </View>
+        ) : null}
       </Pressable>
 
       {/* Video Info */}
@@ -43,7 +47,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ item }) => {
             {item.snippet.title}
           </Text>
           <Text style={styles.subText}>
-            {item.snippet.channelTitle} • {value_converter(Number(item.statistics.viewCount))} views •{" "}
+            {item.snippet.channelTitle} {views ? `• ${views} views` : ""} •{" "}
             {moment(item.snippet.publishedAt).fromNow()}
           </Text>
         </View>
@@ -56,7 +60,7 @@ export default VideoCard;
 
 const styles = StyleSheet.create({
   card: { marginBottom: 20 },
-  thumbnail: { width: "100%", height: 200},
+  thumbnail: { width: "100%", height: 200 },
   durationBox: {
     position: "absolute",
     right: 8,

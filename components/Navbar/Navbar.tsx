@@ -7,11 +7,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useRouter } from "expo-router";
 
 const Navbar = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const inputRef = useRef<TextInput>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (searchOpen && inputRef.current) {
@@ -28,11 +30,6 @@ const Navbar = () => {
 
       {searchOpen ? (
         <View style={styles.searchContainer}>
-          {/* Back button */}
-          <TouchableOpacity onPress={() => setSearchOpen(false)}>
-            <Entypo name="chevron-left" size={32} color="#333" />
-          </TouchableOpacity>
-
           {/* Input field */}
           <TextInput
             ref={inputRef}
@@ -42,7 +39,21 @@ const Navbar = () => {
             value={searchQuery}
             onChangeText={setSearchQuery}
             autoFocus
+            returnKeyType="search"
+            onSubmitEditing={() => {
+              if (searchQuery.trim()) {
+                router.push(`/Search/${searchQuery.trim()}`);
+                setSearchQuery(""); // ✅ clear input
+                setSearchOpen(false); // ✅ close input
+                inputRef.current?.blur(); // ✅ remove focus
+              }
+            }}
           />
+
+          {/* Close button on RIGHT */}
+          <TouchableOpacity onPress={() => setSearchOpen(false)}>
+            <Entypo name="cross" size={32} color="#333" />
+          </TouchableOpacity>
         </View>
       ) : (
         <TouchableOpacity onPress={() => setSearchOpen(true)}>
@@ -74,7 +85,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginLeft: 10,
-    backgroundColor: "#e0e0e0", // slightly greyish
+    backgroundColor: "#e0e0e0",
     borderRadius: 6,
     paddingHorizontal: 6,
   },

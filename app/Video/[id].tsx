@@ -7,16 +7,22 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
-  Image,
   ScrollView,
   StyleSheet,
   Text,
   View,
+  Image,
 } from "react-native";
 import { WebView } from "react-native-webview";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Home from "../(tabs)";
 
-interface VideoDetails {
+const { width } = Dimensions.get("window");
+const PLAYER_HEIGHT = 230;
+const HISTORY_KEY = "VIDEO_HISTORY";
+const MAX_HISTORY = 20;
+
+export interface VideoDetails {
   id: string;
   title: string;
   description: string;
@@ -27,12 +33,9 @@ interface VideoDetails {
   duration: string;
 }
 
-const { width } = Dimensions.get("window");
-const PLAYER_HEIGHT = 230;
-
 const VideoPage = () => {
   const { id } = useLocalSearchParams() as { id?: string };
-  const { data, isLoading, error } = useFetch<VideoDetails>("videos", {
+  const { data, isLoading, error } = useFetch<any>("videos", {
     part: "snippet,contentDetails,statistics",
     id,
   });
@@ -55,12 +58,35 @@ const VideoPage = () => {
     }, [])
   );
 
+  // Update video history
+  useEffect(() => {
+    const addToHistory = async (videoId: string) => {
+      try {
+        const json = await AsyncStorage.getItem(HISTORY_KEY);
+        const history: string[] = json ? JSON.parse(json) : [];
+
+        // Add current video to front, remove duplicates
+        const newHistory = [videoId, ...history.filter((id) => id !== videoId)];
+
+        // Keep only last MAX_HISTORY items
+        const trimmed = newHistory.slice(0, MAX_HISTORY);
+
+        await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
+      } catch (err) {
+        console.error("Failed to update video history:", err);
+      }
+    };
+
+    if (id) addToHistory(id);
+  }, [id]);
+
   if (isLoading)
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" />
       </View>
     );
+
   if (error || !data?.items?.length)
     return (
       <View style={styles.center}>
@@ -116,6 +142,7 @@ const VideoPage = () => {
       >
         <View style={styles.metaContainer}>
           <Text style={styles.title}>{video.title}</Text>
+
           <View style={styles.row}>
             <Image source={{ uri: video.channelAvatar }} style={styles.avatar} />
             <View style={{ flex: 1 }}>
@@ -145,6 +172,7 @@ const VideoPage = () => {
           )}
         </View>
 
+        {/* Other content / tabs */}
         <Home />
       </ScrollView>
     </View>
