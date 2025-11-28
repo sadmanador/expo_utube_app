@@ -1,24 +1,23 @@
+import CommentsSection from "@/components/CommentsSection/CommentsSection";
+import RecommendedList from "@/components/RecommendedList/RecommendedList";
 import { useFetch } from "@/hooks/useFetch";
+import { useGamingVideos } from "@/hooks/useGamingVideos";
 import { parseYouTubeDuration } from "@/utils/duration_converter";
 import { value_converter } from "@/utils/value_converter";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
-import YoutubePlayer from "react-native-youtube-iframe";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
   View,
-  Image,
 } from "react-native";
-import { WebView } from "react-native-webview";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Home from "../(tabs)";
-import { useGamingVideos } from "@/hooks/useGamingVideos";
-import RecommendedList from "@/components/RecommendedList/RecommendedList";
+import YoutubePlayer from "react-native-youtube-iframe";
 
 const { width } = Dimensions.get("window");
 const PLAYER_HEIGHT = 230;
@@ -165,6 +164,13 @@ const VideoPage = () => {
               {expanded ? "Show less" : "...more"}
             </Text>
           )}
+        </View>
+
+        <View style={{ padding: 10 }}>
+          <CommentsSection
+            videoId={video.id}
+            userAvatar={video.channelAvatar}
+          />
         </View>
 
         <View style={{ padding: 10 }}>
