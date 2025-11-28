@@ -1,5 +1,5 @@
 // hooks/useFetch.ts
-import axiosInstance from "@/utils/axios";
+import axiosInstance from "@/utils/apiService";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 
 interface YouTubeResponse<T> {
