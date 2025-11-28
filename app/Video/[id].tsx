@@ -17,6 +17,8 @@ import {
 import { WebView } from "react-native-webview";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Home from "../(tabs)";
+import { useGamingVideos } from "@/hooks/useGamingVideos";
+import RecommendedList from "@/components/RecommendedList/RecommendedList";
 
 const { width } = Dimensions.get("window");
 const PLAYER_HEIGHT = 230;
@@ -35,6 +37,7 @@ export interface VideoDetails {
 }
 
 const VideoPage = () => {
+  const { videos, loading } = useGamingVideos();
   const { id } = useLocalSearchParams() as { id?: string };
   const { data, isLoading, error } = useFetch<any>("videos", {
     part: "snippet,contentDetails,statistics",
@@ -45,8 +48,7 @@ const VideoPage = () => {
   const [expanded, setExpanded] = useState(false);
   const MAX_LINES = 3;
 
-    const playerRef = useRef<typeof YoutubePlayer>(null);
-
+  const playerRef = useRef<typeof YoutubePlayer>(null);
 
   // Autoplay shortly after mount
   useEffect(() => {
@@ -112,7 +114,6 @@ const VideoPage = () => {
 
   return (
     <View style={styles.container}>
-     
       <YoutubePlayer
         ref={playerRef}
         height={PLAYER_HEIGHT}
@@ -130,15 +131,15 @@ const VideoPage = () => {
       />
 
       {/* Scrollable content */}
-      <ScrollView
-        style={styles.scrollContent}
-        
-      >
+      <ScrollView style={styles.scrollContent}>
         <View style={styles.metaContainer}>
           <Text style={styles.title}>{video.title}</Text>
 
           <View style={styles.row}>
-            <Image source={{ uri: video.channelAvatar }} style={styles.avatar} />
+            <Image
+              source={{ uri: video.channelAvatar }}
+              style={styles.avatar}
+            />
             <View style={{ flex: 1 }}>
               <Text style={styles.channelName}>{video.channelTitle}</Text>
               <Text style={styles.subText}>
@@ -166,8 +167,9 @@ const VideoPage = () => {
           )}
         </View>
 
-        {/* Other content / tabs */}
-        <Home />
+        <View style={{ padding: 10 }}>
+          <RecommendedList videos={videos} />
+        </View>
       </ScrollView>
     </View>
   );
