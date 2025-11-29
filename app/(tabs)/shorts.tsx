@@ -100,28 +100,49 @@ const FullScreenVideoFeed: React.FC = () => {
   const renderItem = ({ item, index }: { item: VideoItem; index: number }) => (
     <View style={{ width, height }}>
       {/* Video Player */}
-      <YoutubePlayer
-        ref={(ref: React.ElementRef<typeof YoutubePlayer> | null) =>
-          (playerRefs.current[index] = ref)
-        }
-        height={height * 0.25}
-        width={width}
-        videoId={item.id}
-        play={playingIndex === index}
-        mute={false}
-        forceAndroidAutoplay
-        initialPlayerParams={{
-          controls: true,
-          modestbranding: true,
-          rel: false,
-          showinfo: false,
-        } as Record<string, unknown>}
-        onChangeState={(state) => {
-          if (state === "playing") {
-            storeVideoHistory(item.id); // store in history
-          }
-        }}
-      />
+      {(() => {
+        // separate types declared in local scope
+        type InitialPlayerParams = {
+          controls?: boolean;
+          modestbranding?: boolean;
+          rel?: boolean;
+          showinfo?: boolean;
+          [key: string]: unknown;
+        };
+
+        type YouTubeState =
+          | "unstarted"
+          | "ended"
+          | "playing"
+          | "paused"
+          | "buffering"
+          | "cued";
+
+        type YoutubePlayerRef = React.ElementRef<typeof YoutubePlayer> | null;
+
+        return (
+          <YoutubePlayer
+            ref={(ref: YoutubePlayerRef) => (playerRefs.current[index] = ref)}
+            height={height * 0.25}
+            width={width}
+            videoId={item.id}
+            play={playingIndex === index}
+            mute={false}
+            forceAndroidAutoplay
+            initialPlayerParams={{
+              controls: true,
+              modestbranding: true,
+              rel: false,
+              showinfo: false,
+            } as InitialPlayerParams}
+            onChangeState={(state: YouTubeState) => {
+              if (state === "playing") {
+                storeVideoHistory(item.id); // store in history
+              }
+            }}
+          />
+        );
+      })()}
 
       {/* Video Info Below */}
       <View style={styles.videoInfo}>
