@@ -6,6 +6,7 @@ export interface RecommendedVideo {
   id: string;
   title: string;
   channelTitle: string;
+  channelId: string;
   thumbnail: string;
   viewCount?: number;
 }
@@ -32,6 +33,7 @@ export const useGamingVideos = () => {
           id: item.id,
           title: item.snippet.title,
           channelTitle: item.snippet.channelTitle,
+          channelId: item.snippet.channelId,
           thumbnail: item.snippet.thumbnails.medium.url,
           viewCount: item.statistics?.viewCount,
         }));
