@@ -77,13 +77,17 @@ const VideoPage = () => {
         const trimmed = newHistory.slice(0, MAX_HISTORY);
 
         await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
+        console.log("Added to history:", trimmed);
       } catch (err) {
         console.error("Failed to update video history:", err);
       }
     };
 
-    if (id) addToHistory(id);
-  }, [id]);
+    if (!isLoading && data?.items?.length) {
+      const videoId = data.items[0].id;
+      addToHistory(videoId);
+    }
+  }, [isLoading, data]);
 
   if (isLoading)
     return (
