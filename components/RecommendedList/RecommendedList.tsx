@@ -31,7 +31,6 @@ const RecommendedList: React.FC<RecommendedListProps> = ({ videos }) => {
   const renderItem = ({ item }: { item: RecommendedVideo }) => {
     const views = item.viewCount;
 
-    console.log("Recommended ID:", item.channelId);
 
     return (
       <View style={styles.card}>

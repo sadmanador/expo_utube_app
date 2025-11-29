@@ -1,77 +1,81 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, ActivityIndicator, Pressable } from "react-native";
-import { useRouter } from "expo-router";
-import { getVideo } from "@/utils/apiService";
-import ShortsCard from "@/components/ShortsCard/ShortsCard";
-import SafeAreaLayout from "@/components/SafeAreaLayout";
+import React, { useRef, useState } from "react";
+import { View, FlatList, Dimensions, Text } from "react-native";
+import YoutubePlayer from "react-native-youtube-iframe";
+
+const { width, height } = Dimensions.get("window");
 
 interface VideoItem {
-  id: { videoId: string };
-  snippet: any;
+  id: string;
+  title: string;
+  channelTitle: string;
 }
 
-const Shorts = () => {
-  const [shorts, setShorts] = useState<VideoItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+interface Props {
+  videos: VideoItem[];
+}
 
-  const fetchShorts = async () => {
-    try {
-      // Replace 'your_search_query' with what you want (or '' for trending)
-      const res = await getVideo(
-        `/search?part=snippet&q=&type=video&videoDuration=short&maxResults=20`
-      );
+const FullScreenVideoFeed: React.FC<Props> = ({ videos }) => {
+  const playerRefs = useRef<any[]>([]);
+  const [playingIndex, setPlayingIndex] = useState(0);
 
-      if (res.data?.items?.length) {
-        setShorts(res.data.items);
-      } else {
-        setError("No shorts found");
+  const renderItem = ({ item, index }: { item: VideoItem; index: number }) => (
+    <View style={{ width, height }}>
+      <YoutubePlayer
+      ref={(ref: React.ElementRef<typeof YoutubePlayer> | null) =>
+        (playerRefs.current[index] = ref)
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch shorts");
-    } finally {
-      setLoading(false);
-    }
-  };
+      height={height}
+      width={width}
+      videoId={item.id}
+      play={playingIndex === index}
+      mute={false}
+      forceAndroidAutoplay={true}
+      initialPlayerParams={{
+        controls: true,
+        modestbranding: true,
+        rel: false,
+        showinfo: false,
+      } as Record<string, unknown>}
+      />
 
-  useEffect(() => {
-    fetchShorts();
-  }, []);
-
-  if (loading)
-    return (
-      <SafeAreaLayout>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-          <ActivityIndicator size="large" />
-        </View>
-      </SafeAreaLayout>
-    );
-
-  if (error)
-    return (
-      <SafeAreaLayout>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-          <Text>{error}</Text>
-        </View>
-      </SafeAreaLayout>
-    );
+      <View
+      style={{
+        position: "absolute",
+        bottom: 60,
+        left: 10,
+        right: 10,
+      }}
+      >
+      <Text style={{ fontSize: 20, fontWeight: "bold", color: "#fff" }}>
+        {item.title}
+      </Text>
+      <Text style={{ fontSize: 14, color: "#fff", marginTop: 4 }}>
+        {item.channelTitle}
+      </Text>
+      </View>
+    </View>
+  );
 
   return (
-    <SafeAreaLayout>
-      <ScrollView contentContainerStyle={{ padding: 10 }}>
-        {shorts.map((item, index) => (
-          <Pressable
-            key={index}
-            onPress={() => router.push(`/video/${item.id.videoId}`)}
-            style={{ marginBottom: 12 }}
-          >
-            <ShortsCard item={item} />
-          </Pressable>
-        ))}
-      </ScrollView>
-    </SafeAreaLayout>
+    <FlatList
+      data={videos}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.id}
+      pagingEnabled
+      showsVerticalScrollIndicator={false}
+      snapToInterval={height} // ensure snap per full-screen item
+      decelerationRate="fast"
+      onMomentumScrollEnd={(ev) => {
+        const index = Math.round(ev.nativeEvent.contentOffset.y / height);
+        setPlayingIndex(index);
+      }}
+      getItemLayout={(_, index) => ({
+        length: height,
+        offset: height * index,
+        index,
+      })}
+    />
   );
 };
 
-export default Shorts;
+export default FullScreenVideoFeed;
