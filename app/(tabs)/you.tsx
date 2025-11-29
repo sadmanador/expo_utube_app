@@ -5,6 +5,7 @@ import {
   FlatList,
   ActivityIndicator,
   StyleSheet,
+  Pressable,
 } from "react-native";
 import VideoCard from "@/components/VideoCard/VideoCard";
 import { getVideo } from "@/utils/apiService";
@@ -28,22 +29,22 @@ const YouPage = () => {
         return;
       }
 
-      // Fetch video details for all videoIds
       const res = await getVideo(
         `/videos?part=snippet,contentDetails,statistics&id=${videoIds.join(
           ","
         )}`
       );
 
-      if (res.data?.items?.length) {
-        // Sort to match history order (newest first) and filter undefined
+      const items = (res.data as { items?: VideoItem[] }).items ?? [];
+
+      if (items.length) {
         const sorted: VideoItem[] = videoIds
           .map((id) =>
-            res.data!.items.find((v) =>
+            items.find((v) =>
               typeof v.id === "string" ? v.id === id : v.id.videoId === id
             )
           )
-          .filter((v): v is VideoItem => v !== undefined); // filter out undefined
+          .filter((v): v is VideoItem => v !== undefined);
 
         setHistoryVideos(sorted);
       } else {
@@ -51,6 +52,7 @@ const YouPage = () => {
       }
     } catch (err) {
       console.error("Failed to fetch history videos:", err);
+      setHistoryVideos([]);
     } finally {
       setLoading(false);
     }
@@ -59,6 +61,15 @@ const YouPage = () => {
   useEffect(() => {
     fetchHistoryVideos();
   }, []);
+
+  const clearHistory = async () => {
+    try {
+      await AsyncStorage.removeItem(HISTORY_KEY);
+      setHistoryVideos([]);
+    } catch (err) {
+      console.error("Failed to clear history:", err);
+    }
+  };
 
   if (loading)
     return (
@@ -76,7 +87,14 @@ const YouPage = () => {
 
   return (
     <View style={{ paddingVertical: 10 }}>
-      <Text style={styles.sectionTitle}>History</Text>
+      {/* Header with Clear Button */}
+      <View style={styles.header}>
+        <Text style={styles.sectionTitle}>History</Text>
+        <Pressable style={styles.clearButton} onPress={clearHistory}>
+          <Text style={styles.clearButtonText}>Clear History</Text>
+        </Pressable>
+      </View>
+
       <FlatList
         horizontal
         data={historyVideos}
@@ -84,13 +102,7 @@ const YouPage = () => {
           typeof item.id === "string" ? item.id : item.id.videoId
         }
         renderItem={({ item }) => (
-          <View
-            style={{
-              borderRadius: 8,
-              overflow: "hidden",
-              transform: [{ scale: 0.85 }], // scales both width and height
-            }}
-          >
+          <View style={styles.cardWrapper}>
             <VideoCard item={item} />
           </View>
         )}
@@ -103,16 +115,37 @@ const YouPage = () => {
 export default YouPage;
 
 const styles = StyleSheet.create({
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginHorizontal: 10,
+    marginBottom: 8,
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 8,
-    marginLeft: 10,
+  },
+  clearButton: {
+    backgroundColor: "#e53935",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  clearButtonText: {
+    color: "#fff",
+    fontWeight: "600",
   },
   center: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 10,
+  },
+  cardWrapper: {
+    borderRadius: 8,
+    overflow: "hidden",
+    transform: [{ scale: 0.85 }],
+    marginHorizontal: 5,
   },
 });
