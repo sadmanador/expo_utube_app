@@ -1,7 +1,7 @@
-import { API_KEY } from "@/constants/api";
+// components/CommentsSection.tsx
+import React, { useState } from "react";
 import { Comment, Props } from "@/types";
-
-import React, { useEffect, useState } from "react";
+import { useComments } from "@/hooks/useComments";
 import {
   ActivityIndicator,
   Image,
@@ -13,57 +13,9 @@ import {
 } from "react-native";
 
 const CommentsSection: React.FC<Props> = ({ videoId, userAvatar }) => {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { comments, loading } = useComments({ videoId });
   const [collapsed, setCollapsed] = useState(true);
   const [input, setInput] = useState("");
-
-  useEffect(() => {
-    const fetchComments = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(
-          `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet,replies&maxResults=50&videoId=${videoId}&key=${API_KEY}`
-        );
-        const data = await res.json();
-
-        if (data.error) throw new Error(data.error.message);
-
-        const mapped: Comment[] = (data.items || []).map((item: any) => {
-          const top = item.snippet.topLevelComment.snippet;
-          const replies =
-            item.replies?.comments?.map((r: any) => {
-              const rs = r.snippet;
-              return {
-                id: r.id,
-                authorDisplayName: rs.authorDisplayName || "Unknown",
-                authorProfileImageUrl: rs.authorProfileImageUrl || "",
-                textOriginal: rs.textOriginal || "",
-                publishedAt: rs.publishedAt || "",
-              };
-            }) || [];
-
-          return {
-            id: item.id,
-            authorDisplayName: top.authorDisplayName || "Unknown",
-            authorProfileImageUrl: top.authorProfileImageUrl || "",
-            textOriginal: top.textOriginal || "",
-            publishedAt: top.publishedAt || "",
-            replies,
-          };
-        });
-
-        setComments(mapped);
-      } catch (err) {
-        console.error("Failed to fetch comments:", err);
-        setComments([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchComments();
-  }, [videoId]);
 
   const renderReply = (reply: Comment) => (
     <View
@@ -108,12 +60,12 @@ const CommentsSection: React.FC<Props> = ({ videoId, userAvatar }) => {
         />
       </Pressable>
 
-      {/* Collapse button - horizontally centered */}
+      {/* Collapse button */}
       {!collapsed && (
         <Pressable
           onPress={() => setCollapsed(true)}
           style={{
-            alignSelf: "center", // horizontally center
+            alignSelf: "center",
             paddingHorizontal: 16,
             paddingVertical: 8,
             backgroundColor: "#eee",
@@ -136,23 +88,13 @@ const CommentsSection: React.FC<Props> = ({ videoId, userAvatar }) => {
             </Text>
           ) : (
             comments.map((item) => (
-              <View
-                key={item.id}
-                style={{ flexDirection: "row", marginBottom: 10 }}
-              >
+              <View key={item.id} style={{ flexDirection: "row", marginBottom: 10 }}>
                 <Image
                   source={{ uri: item.authorProfileImageUrl }}
-                  style={{
-                    width: 35,
-                    height: 35,
-                    borderRadius: 17.5,
-                    marginRight: 10,
-                  }}
+                  style={{ width: 35, height: 35, borderRadius: 17.5, marginRight: 10 }}
                 />
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontWeight: "600" }}>
-                    {item.authorDisplayName}
-                  </Text>
+                  <Text style={{ fontWeight: "600" }}>{item.authorDisplayName}</Text>
                   <Text>{item.textOriginal}</Text>
                   {item.replies?.map(renderReply)}
                 </View>

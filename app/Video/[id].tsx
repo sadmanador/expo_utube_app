@@ -27,12 +27,33 @@ const PLAYER_HEIGHT = 230;
 const HISTORY_KEY = "VIDEO_HISTORY";
 const MAX_HISTORY = 20;
 
-
+// ----------------------
+// YouTube API response type
+// ----------------------
+interface YouTubeVideoItem {
+  id: string;
+  snippet: {
+    title: string;
+    description: string;
+    channelId: string;
+    channelTitle: string;
+    publishedAt: string;
+  };
+  statistics?: {
+    viewCount?: string;
+    likeCount?: string;
+  };
+  contentDetails?: {
+    duration?: string;
+  };
+}
 
 const VideoPage = () => {
-  const { videos, loading } = useGamingVideos();
+  const { videos } = useGamingVideos();
   const { id } = useLocalSearchParams() as { id?: string };
-  const { data, isLoading, error } = useFetch<any>("videos", {
+
+  // ✅ Explicitly type the useFetch with YouTubeVideoItem
+  const { data, isLoading, error } = useFetch<YouTubeVideoItem>("videos", {
     part: "snippet,contentDetails,statistics",
     id,
   });
@@ -43,13 +64,17 @@ const VideoPage = () => {
 
   const playerRef = useRef<typeof YoutubePlayer>(null);
 
+  // ----------------------
   // Autoplay shortly after mount
+  // ----------------------
   useEffect(() => {
     const timer = setTimeout(() => setPlaying(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
+  // ----------------------
   // Pause/resume on navigation
+  // ----------------------
   useFocusEffect(
     useCallback(() => {
       setPlaying(true);
@@ -57,17 +82,16 @@ const VideoPage = () => {
     }, [])
   );
 
+  // ----------------------
   // Update video history
+  // ----------------------
   useEffect(() => {
     const addToHistory = async (videoId: string) => {
       try {
         const json = await AsyncStorage.getItem(HISTORY_KEY);
         const history: string[] = json ? JSON.parse(json) : [];
 
-        // Add current video to front, remove duplicates
         const newHistory = [videoId, ...history.filter((id) => id !== videoId)];
-
-        // Keep only last MAX_HISTORY items
         const trimmed = newHistory.slice(0, MAX_HISTORY);
 
         await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
@@ -78,8 +102,7 @@ const VideoPage = () => {
     };
 
     if (!isLoading && data?.items?.length) {
-      const videoId = data.items[0].id;
-      addToHistory(videoId);
+      addToHistory(data.items[0].id);
     }
   }, [isLoading, data]);
 
@@ -97,17 +120,23 @@ const VideoPage = () => {
       </View>
     );
 
-  const item = data.items[0];
+  // ----------------------
+  // Map API response to VideoItem
+  // ----------------------
+  const apiItem = data.items[0];
+  
+  // ✅ Create a properly typed video object
   const video: VideoItem = {
-    id: item.id,
-    title: item.snippet.title,
-    description: item.snippet.description,
-    channelTitle: item.snippet.channelTitle,
-    channelAvatar: `${CHANNEL_AVATAR}${item.snippet.channelId}`,
-    publishedAt: item.snippet.publishedAt,
-    viewCount: Number(item.statistics?.viewCount ?? 0),
-    duration: item.contentDetails?.duration ?? "PT0M0S",
-  };
+  id: apiItem.id,
+  title: apiItem.snippet.title,
+  description: apiItem.snippet.description,
+  channelTitle: apiItem.snippet.channelTitle,
+  channelAvatar: `${CHANNEL_AVATAR}${apiItem.snippet.channelId}`,
+  channelId: apiItem.snippet.channelId,
+  publishedAt: apiItem.snippet.publishedAt,
+  viewCount: Number(apiItem.statistics?.viewCount ?? 0),
+  duration: apiItem.contentDetails?.duration ?? "PT0M0S",
+};
 
   return (
     <View style={styles.container}>
@@ -127,16 +156,12 @@ const VideoPage = () => {
         }}
       />
 
-      {/* Scrollable content */}
       <ScrollView style={styles.scrollContent}>
         <View style={styles.metaContainer}>
           <Text style={styles.title}>{video.title}</Text>
 
           <View style={styles.row}>
-            <Image
-              source={{ uri: video.channelAvatar }}
-              style={styles.avatar}
-            />
+            <Image source={{ uri: video.channelAvatar }} style={styles.avatar} />
             <View style={{ flex: 1 }}>
               <Text style={styles.channelName}>{video.channelTitle}</Text>
               <Text style={styles.subText}>
@@ -155,20 +180,14 @@ const VideoPage = () => {
           </Text>
 
           {video.description.length > 120 && (
-            <Text
-              style={styles.moreButton}
-              onPress={() => setExpanded(!expanded)}
-            >
+            <Text style={styles.moreButton} onPress={() => setExpanded(!expanded)}>
               {expanded ? "Show less" : "...more"}
             </Text>
           )}
         </View>
 
         <View style={{ padding: 10 }}>
-          <CommentsSection
-            videoId={video.id}
-            userAvatar={video.channelAvatar}
-          />
+          <CommentsSection videoId={video.id} userAvatar={video.channelAvatar} />
         </View>
 
         <View style={{ padding: 10 }}>
@@ -183,7 +202,6 @@ export default VideoPage;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
-  webview: { width: "100%", height: "100%" },
   scrollContent: { flex: 1 },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   metaContainer: { padding: 10 },

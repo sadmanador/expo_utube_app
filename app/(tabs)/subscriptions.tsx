@@ -7,7 +7,7 @@ const subscriptions = () => {
   return (
     <SafeAreaLayout>
       <View style={styles.container}>
-        <Text style={styles.text}>Subscriptions Content</Text>
+        <Text>Subscriptions Content</Text>
       </View>
     </SafeAreaLayout>
   );

@@ -124,19 +124,51 @@ export interface PlaylistItem {
   };
 }
 
+export interface VideoItemSnippet {
+  id: string;                  // video ID
+  title: string;               // video title
+  description: string;         // video description
+  channelId: string;           // ID of the channel
+  channelTitle: string;        // name of the channel
+  channelAvatar?: string;      // optional, avatar URL for UI
+  publishedAt: string;         // ISO date string
+  viewCount?: number;          // optional, number of views
+  duration?: string;           // optional, ISO 8601 duration
+}
+
+
+export interface YouTubeVideoItem {
+  id: string;
+  snippet: {
+    title: string;
+    description: string;
+    channelId: string;
+    channelTitle: string;
+    publishedAt: string;
+  };
+  statistics?: {
+    viewCount?: string;
+    likeCount?: string;
+  };
+  contentDetails?: {
+    duration?: string;
+  };
+}
+
+// App type (used for UI)
 export interface VideoItem {
-  id: string; // videoId
+  id: string;
   title: string;
   description: string;
-  channelId: string;
   channelTitle: string;
-  channelAvatar?: string; // optional for UI
-  thumbnail?: string; // optional main thumbnail
+  channelAvatar: string;
+  channelId: string;
   publishedAt: string;
   viewCount?: number;
-  likeCount?: number;
   duration?: string;
+  thumbnail: string;
 }
+
 
 export interface SafeAreaLayoutProps {
   children: React.ReactNode;
@@ -163,7 +195,7 @@ export interface RecommendedListProps {
 }
 
 export interface YouTubeResponse<T> {
-  items: VideoItem[];
+  items: T[];
   nextPageToken?: string;
 }
 
@@ -196,7 +228,6 @@ export interface ChannelItem {
   id: string;
   kind?: string;
   etag?: string;
-
   snippet: {
     title: string;
     description: string;
@@ -242,4 +273,10 @@ export interface ChannelItem {
       favorites?: string;
     };
   };
+}
+
+
+export interface UseCommentsProps {
+  videoId: string;
+  maxResults?: number;
 }

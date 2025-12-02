@@ -5,10 +5,7 @@ import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 
 
 
-export const useFetch = <T>(
-  endpoint: string,
-  params?: Record<string, any>
-) => {
+export const useFetch = <T>(endpoint: string, params?: Record<string, any>) => {
   return useQuery<YouTubeResponse<T>>({
     queryKey: [endpoint, params],
     queryFn: async () => {
@@ -17,6 +14,7 @@ export const useFetch = <T>(
     },
   });
 };
+
 
 export const useInfiniteFetch = <T>(
   endpoint: string,

@@ -1,5 +1,5 @@
 import { CHANNEL_AVATAR } from "@/constants/api";
-import { RecommendedListProps, VideoItem } from "@/types";
+import { RecommendedListProps, RecommendedVideo } from "@/types";
 
 import { value_converter } from "@/utils/value_converter";
 import { useRouter } from "expo-router";
@@ -14,14 +14,11 @@ import {
   View,
 } from "react-native";
 
-
-
 const RecommendedList: React.FC<RecommendedListProps> = ({ videos }) => {
   const router = useRouter();
 
-  const renderItem = ({ item }: { item: VideoItem }) => {
+  const renderItem = ({ item }: { item: RecommendedVideo }) => {
     const views = item.viewCount;
-
 
     return (
       <View style={styles.card}>
