@@ -13,6 +13,7 @@ import {
   Text,
   View,
 } from "react-native";
+import ChannelAvatarButton from "../ChannelAvatarButton/ChannelAvatarButton";
 
 const RecommendedList: React.FC<RecommendedListProps> = ({ videos }) => {
   const router = useRouter();
@@ -34,14 +35,12 @@ const RecommendedList: React.FC<RecommendedListProps> = ({ videos }) => {
         {/* VIDEO INFO ROW */}
         <View style={styles.metaRow}>
           {/* CHANNEL AVATAR */}
-          <Pressable onPress={() => router.push(`/Channel/${item.channelId}`)}>
-            <Image
-              source={{
-                uri: `${CHANNEL_AVATAR}${item.channelId}`,
-              }}
-              style={styles.avatar}
-            />
-          </Pressable>
+
+          <ChannelAvatarButton
+            channelId={item.channelId}
+            uri={`${CHANNEL_AVATAR}${item.channelId}`}
+            size={40} // optional, default is 40
+          />
 
           {/* TEXT INFO */}
           <View style={styles.metaInfo}>

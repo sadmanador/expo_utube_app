@@ -3,12 +3,25 @@ import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator, FlatList } from "react-native";
 
-import { VideoItem } from "@/types";
 import VideoCard from "@/components/VideoCard/VideoCard";
+
+interface YouTubeVideoItem {
+  id: { videoId: string } | string;
+  snippet: {
+    title: string;
+    description: string;
+    channelId: string;
+    channelTitle: string;
+    publishedAt: string;
+    thumbnails: { medium: { url: string } };
+  };
+  statistics?: { viewCount?: string };
+  contentDetails?: { duration?: string };
+}
 
 const SearchResults = () => {
   const { searchQuery } = useLocalSearchParams() as { searchQuery?: string };
-  const [videos, setVideos] = useState<VideoItem[]>([]);
+  const [videos, setVideos] = useState<YouTubeVideoItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -21,7 +34,7 @@ const SearchResults = () => {
       if (res.error) {
         setError(res.error.message);
       } else if (res.data?.items) {
-        setVideos(res.data.items as VideoItem[]);
+        setVideos(res.data.items); // ✅ no cast to VideoItem
       } else {
         setError("No results found.");
       }

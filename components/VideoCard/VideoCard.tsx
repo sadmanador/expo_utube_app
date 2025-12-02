@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 import moment from "moment";
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import ChannelAvatarButton from "../ChannelAvatarButton/ChannelAvatarButton";
 
 const VideoCard: React.FC<VideoCardItemProps> = ({ item }) => {
   const router = useRouter();
@@ -34,14 +35,11 @@ const VideoCard: React.FC<VideoCardItemProps> = ({ item }) => {
 
       {/* Video Info */}
       <View style={styles.metaRow}>
-        <Pressable
-          onPress={() => router.push(`/Channel/${item.snippet.channelId}`)}
-        >
-          <Image
-            source={{ uri: `${CHANNEL_AVATAR}${item.snippet.channelId}` }}
-            style={styles.avatar}
-          />
-        </Pressable>
+        <ChannelAvatarButton
+          channelId={item.snippet.channelId}
+          uri={`${CHANNEL_AVATAR}${item.snippet.channelId}`}
+          size={40} // optional, default is 40
+        />
 
         <View style={styles.metaInfo}>
           <Text style={styles.title} numberOfLines={2}>

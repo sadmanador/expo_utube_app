@@ -1,3 +1,4 @@
+import ChannelAvatarButton from "@/components/ChannelAvatarButton/ChannelAvatarButton";
 import { useYouTubeShortVideos } from "@/hooks/useYouTubeShortVideos";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
@@ -109,9 +110,11 @@ const FullScreenVideoFeed: React.FC = () => {
       {/* Video Info */}
       <View style={styles.videoInfo}>
         <View style={styles.channelRow}>
-          <Pressable onPress={() => router.push(`/Channel/${item.channelId}`)}>
-            <Image source={{ uri: item.channelAvatar }} style={styles.avatar} />
-          </Pressable>
+          <ChannelAvatarButton
+            channelId={item.channelId}
+            uri={item.channelAvatar}
+            size={50} // optional, default is 40
+          />
 
           <View style={{ flex: 1 }}>
             <Text style={styles.title}>{item.title}</Text>

@@ -1,3 +1,4 @@
+import ChannelAvatarButton from "@/components/ChannelAvatarButton/ChannelAvatarButton";
 import CommentsSection from "@/components/CommentsSection/CommentsSection";
 import RecommendedList from "@/components/RecommendedList/RecommendedList";
 import { CHANNEL_AVATAR } from "@/constants/api";
@@ -8,13 +9,14 @@ import { VideoItem } from "@/types";
 import { parseYouTubeDuration } from "@/utils/duration_converter";
 import { value_converter } from "@/utils/value_converter";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
   Image,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -124,19 +126,19 @@ const VideoPage = () => {
   // Map API response to VideoItem
   // ----------------------
   const apiItem = data.items[0];
-  
+
   // ✅ Create a properly typed video object
   const video: VideoItem = {
-  id: apiItem.id,
-  title: apiItem.snippet.title,
-  description: apiItem.snippet.description,
-  channelTitle: apiItem.snippet.channelTitle,
-  channelAvatar: `${CHANNEL_AVATAR}${apiItem.snippet.channelId}`,
-  channelId: apiItem.snippet.channelId,
-  publishedAt: apiItem.snippet.publishedAt,
-  viewCount: Number(apiItem.statistics?.viewCount ?? 0),
-  duration: apiItem.contentDetails?.duration ?? "PT0M0S",
-};
+    id: apiItem.id,
+    title: apiItem.snippet.title,
+    description: apiItem.snippet.description,
+    channelTitle: apiItem.snippet.channelTitle,
+    channelAvatar: `${CHANNEL_AVATAR}${apiItem.snippet.channelId}`,
+    channelId: apiItem.snippet.channelId,
+    publishedAt: apiItem.snippet.publishedAt,
+    viewCount: Number(apiItem.statistics?.viewCount ?? 0),
+    duration: apiItem.contentDetails?.duration ?? "PT0M0S",
+  };
 
   return (
     <View style={styles.container}>
@@ -161,7 +163,12 @@ const VideoPage = () => {
           <Text style={styles.title}>{video.title}</Text>
 
           <View style={styles.row}>
-            <Image source={{ uri: video.channelAvatar }} style={styles.avatar} />
+            <ChannelAvatarButton
+              channelId={video.channelId}
+              uri={video.channelAvatar}
+              size={50} // optional, default is 40
+            />
+
             <View style={{ flex: 1 }}>
               <Text style={styles.channelName}>{video.channelTitle}</Text>
               <Text style={styles.subText}>
@@ -180,14 +187,20 @@ const VideoPage = () => {
           </Text>
 
           {video.description.length > 120 && (
-            <Text style={styles.moreButton} onPress={() => setExpanded(!expanded)}>
+            <Text
+              style={styles.moreButton}
+              onPress={() => setExpanded(!expanded)}
+            >
               {expanded ? "Show less" : "...more"}
             </Text>
           )}
         </View>
 
         <View style={{ padding: 10 }}>
-          <CommentsSection videoId={video.id} userAvatar={video.channelAvatar} />
+          <CommentsSection
+            videoId={video.id}
+            userAvatar={video.channelAvatar}
+          />
         </View>
 
         <View style={{ padding: 10 }}>

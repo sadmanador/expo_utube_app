@@ -33,7 +33,6 @@ export interface AxiosErrorType {
   stack?: string;
 }
 
-
 export interface VideoCardItemProps {
   item: {
     id: string | { videoId: string };
@@ -58,12 +57,6 @@ export interface VideoCardItemProps {
   };
 }
 
-
-
-
-
-
-
 export interface PlaylistItem {
   contentDetails: { videoId: string };
   snippet?: {
@@ -76,9 +69,6 @@ export interface PlaylistItem {
     };
   };
 }
-
-
-
 
 export interface YouTubeVideoItem {
   id: string;
@@ -109,9 +99,8 @@ export interface VideoItem {
   publishedAt: string;
   viewCount?: number;
   duration?: string;
-  thumbnail: string;
+  thumbnail?: string;
 }
-
 
 export interface SafeAreaLayoutProps {
   children: React.ReactNode;
@@ -150,9 +139,6 @@ export interface ShortVideo {
   channelAvatar: string;
   description: string;
 }
-
-
-
 
 export interface ChannelItem {
   id: string;
@@ -205,8 +191,24 @@ export interface ChannelItem {
   };
 }
 
-
 export interface UseCommentsProps {
   videoId: string;
   maxResults?: number;
 }
+
+// Flattened Comment type for both API and UI
+export interface Comment {
+  id: string;
+  authorDisplayName: string;
+  authorProfileImageUrl: string;
+  textOriginal: string;
+  publishedAt: string;
+  replies?: Comment[]; // optional nested replies
+}
+
+// API response wrapper for comments
+export interface CommentsResponse {
+  items: Comment[];
+  nextPageToken?: string;
+}
+
