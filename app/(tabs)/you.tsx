@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import VideoCard from "@/components/VideoCard/VideoCard";
 import { getVideo } from "@/utils/apiService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { VideoItem } from "@/types";
+import { useFocusEffect } from "@react-navigation/native";
 
 const HISTORY_KEY = "VIDEO_HISTORY";
 
@@ -30,9 +31,7 @@ const YouPage = () => {
       }
 
       const res = await getVideo(
-        `/videos?part=snippet,contentDetails,statistics&id=${videoIds.join(
-          ","
-        )}`
+        `/videos?part=snippet,contentDetails,statistics&id=${videoIds.join(",")}`
       );
 
       const items = (res.data as { items?: VideoItem[] }).items ?? [];
@@ -41,7 +40,9 @@ const YouPage = () => {
         const sorted: VideoItem[] = videoIds
           .map((id) =>
             items.find((v) =>
-              typeof v.id === "string" ? v.id === id : v.id.videoId === id
+              typeof v.id === "string"
+                ? v.id === id
+                : v.id && typeof v.id === "object" && "videoId" in v.id && (v.id as { videoId: string }).videoId === id
             )
           )
           .filter((v): v is VideoItem => v !== undefined);
@@ -58,9 +59,12 @@ const YouPage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchHistoryVideos();
-  }, []);
+  // Refresh history whenever the screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchHistoryVideos();
+    }, [])
+  );
 
   const clearHistory = async () => {
     try {
@@ -98,12 +102,15 @@ const YouPage = () => {
       <FlatList
         horizontal
         data={historyVideos}
-        keyExtractor={(item) =>
-          typeof item.id === "string" ? item.id : item.id.videoId
-        }
+        keyExtractor={(item) => {
+          if (typeof item.id === "string") return item.id;
+          if (item.id && typeof item.id === "object" && "videoId" in item.id)
+            return (item.id as { videoId: string }).videoId;
+          return "";
+        }}
         renderItem={({ item }) => (
           <View style={styles.cardWrapper}>
-            <VideoCard item={item} />
+            <VideoCard item={item as any} />
           </View>
         )}
         showsHorizontalScrollIndicator={false}

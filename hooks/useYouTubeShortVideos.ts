@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 
-import { ApiResponse, ShortVideo } from "@/types/index";
-import { YouTubeShortVideo } from "@/types/shorts";
-import {  getVideo } from "@/utils/apiService";
 import { CHANNEL_AVATAR } from "@/constants/api";
+import { ShortVideo } from "@/types/index";
+import { getVideo } from "@/utils/apiService";
 
 export const useYouTubeShortVideos = (
   categoryId: string,

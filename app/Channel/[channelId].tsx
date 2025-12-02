@@ -76,7 +76,10 @@ const ChannelPage = () => {
         `/videos?part=snippet,contentDetails,statistics&id=${videoIds}`
       );
 
-      setVideos(videosRes.data?.items || []);
+      const validVideos = (videosRes.data?.items || []).filter(
+        (video) => video.snippet
+      );
+      setVideos(validVideos);
     } catch (err: any) {
       console.error(err);
       setError(err.message || "Failed to fetch videos");
@@ -154,7 +157,7 @@ const ChannelPage = () => {
     <FlatList
       data={videos}
       keyExtractor={(item) => item.id}
-      renderItem={({ item }) => <VideoCard item={item} />}
+      renderItem={({ item }) => <VideoCard item={item as any} />}
       ListHeaderComponent={renderHeader}
       ListFooterComponent={<View style={{ height: 60 }} />}
       contentContainerStyle={{ paddingBottom: 20 }}

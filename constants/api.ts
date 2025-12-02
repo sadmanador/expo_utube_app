@@ -1,3 +1,3 @@
-export const API_KEY = "AIzaSyD13qOBkPGLhQu8XB8E36fKh-I1Mtrpvp8";
-export const BASE_URL = "https://www.googleapis.com/youtube/v3";
-export const CHANNEL_AVATAR = "https://i.pravatar.cc/100?u=";
+export const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
+export const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL;
+export const CHANNEL_AVATAR = process.env.EXPO_PUBLIC_CHANNEL_AVATAR;

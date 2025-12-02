@@ -1,4 +1,4 @@
-import { CHANNEL_AVATAR } from "@/constants/api";
+
 import { VideoCardItemProps } from "@/types";
 import { parseYouTubeDuration } from "@/utils/duration_converter";
 import { value_converter } from "@/utils/value_converter";
@@ -7,6 +7,7 @@ import moment from "moment";
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import ChannelAvatarButton from "../ChannelAvatarButton/ChannelAvatarButton";
+import { CHANNEL_AVATAR } from "@/constants/api";
 
 const VideoCard: React.FC<VideoCardItemProps> = ({ item }) => {
   const router = useRouter();
