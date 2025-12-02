@@ -1,10 +1,8 @@
 // components/SafeAreaLayout.tsx
-import { styles } from "@/Global_style/style";
+import { GlobalStyles } from "@/Global_style/GlobalStyle";
 import { SafeAreaLayoutProps } from "@/types";
 import React from "react";
-import { Platform, StatusBar, View,  } from "react-native";
-
-
+import { Platform, StatusBar, View } from "react-native";
 
 export default function SafeAreaLayout({
   children,
@@ -13,7 +11,7 @@ export default function SafeAreaLayout({
   return (
     <View
       style={[
-        styles.container,
+        GlobalStyles.container,
         {
           paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
         },

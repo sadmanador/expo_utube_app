@@ -1,14 +1,10 @@
 import Navbar from "@/components/Navbar/Navbar";
-import Entypo from "@expo/vector-icons/Entypo";
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Tabs } from "expo-router";
 import React from "react";
 import { View } from "react-native";
+import { Home_Icon, Shorts_Icon, Subscriptions_Icon, You_Icon } from "@/utils/icons";
 
 export default function TabsLayout() {
-  
-
   return (
     <View style={{ flex: 1 }}>
       <Navbar />
@@ -28,33 +24,31 @@ export default function TabsLayout() {
           name="index"
           options={{
             title: "Home",
-            tabBarIcon: ({ color }) => <Entypo name="home" size={24} color={color} />,
+            tabBarIcon: ({ color }) => <Home_Icon color={color} />,
           }}
         />
         <Tabs.Screen
           name="shorts"
           options={{
             title: "Shorts",
-            tabBarIcon: ({ color }) => <MaterialCommunityIcons name="cellphone-play" size={24} color={color} />,
+            tabBarIcon: ({ color }) => <Shorts_Icon color={color} />,
           }}
         />
         <Tabs.Screen
           name="subscriptions"
           options={{
             title: "Subscriptions",
-            tabBarIcon: ({ color }) => <MaterialIcons name="subscriptions" size={24} color={color} />,
+            tabBarIcon: ({ color }) => <Subscriptions_Icon color={color} />,
           }}
         />
         <Tabs.Screen
           name="you"
           options={{
             title: "You",
-            tabBarIcon: ({ color }) => <Entypo name="user" size={24} color={color} />,
+            tabBarIcon: ({ color }) => <You_Icon color={color} />,
           }}
         />
       </Tabs>
     </View>
   );
 }
-
-

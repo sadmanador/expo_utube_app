@@ -1,13 +1,13 @@
-
+import { CHANNEL_AVATAR } from "@/constants/api";
 import { VideoCardItemProps } from "@/types";
-import { parseYouTubeDuration } from "@/utils/duration_converter";
-import { value_converter } from "@/utils/value_converter";
+import { parseYouTubeDuration } from "@/utils/converters/duration_converter";
+import { value_converter } from "@/utils/converters/value_converter";
 import { useRouter } from "expo-router";
 import moment from "moment";
 import React from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, Text, View } from "react-native";
 import ChannelAvatarButton from "../ChannelAvatarButton/ChannelAvatarButton";
-import { CHANNEL_AVATAR } from "@/constants/api";
+import { VideoCardStyles } from "./VideoCardStyles";
 
 const VideoCard: React.FC<VideoCardItemProps> = ({ item }) => {
   const router = useRouter();
@@ -19,15 +19,15 @@ const VideoCard: React.FC<VideoCardItemProps> = ({ item }) => {
     : "";
 
   return (
-    <View style={styles.card}>
+    <View style={VideoCardStyles.card}>
       <Pressable onPress={() => router.push(`/Video/${videoId}`)}>
         <Image
           source={{ uri: item.snippet.thumbnails.medium.url }}
-          style={styles.thumbnail}
+          style={VideoCardStyles.thumbnail}
         />
         {duration ? (
-          <View style={styles.durationBox}>
-            <Text style={styles.durationText}>
+          <View style={VideoCardStyles.durationBox}>
+            <Text style={VideoCardStyles.durationText}>
               {parseYouTubeDuration(duration)}
             </Text>
           </View>
@@ -35,18 +35,18 @@ const VideoCard: React.FC<VideoCardItemProps> = ({ item }) => {
       </Pressable>
 
       {/* Video Info */}
-      <View style={styles.metaRow}>
+      <View style={VideoCardStyles.metaRow}>
         <ChannelAvatarButton
           channelId={item.snippet.channelId}
           uri={`${CHANNEL_AVATAR}${item.snippet.channelId}`}
           size={40} // optional, default is 40
         />
 
-        <View style={styles.metaInfo}>
-          <Text style={styles.title} numberOfLines={2}>
+        <View style={VideoCardStyles.metaInfo}>
+          <Text style={VideoCardStyles.title} numberOfLines={2}>
             {item.snippet.title}
           </Text>
-          <Text style={styles.subText}>
+          <Text style={VideoCardStyles.subText}>
             {item.snippet.channelTitle} {views ? `• ${views} views` : ""} •{" "}
             {moment(item.snippet.publishedAt).fromNow()}
           </Text>
@@ -57,23 +57,3 @@ const VideoCard: React.FC<VideoCardItemProps> = ({ item }) => {
 };
 
 export default VideoCard;
-
-const styles = StyleSheet.create({
-  card: { marginBottom: 20 },
-  thumbnail: { width: "100%", height: 200 },
-  durationBox: {
-    position: "absolute",
-    right: 8,
-    bottom: 8,
-    backgroundColor: "rgba(0,0,0,0.8)",
-    borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-  },
-  durationText: { color: "#fff", fontSize: 12, fontWeight: "600" },
-  metaRow: { flexDirection: "row", marginTop: 8, alignItems: "center" },
-  avatar: { width: 40, height: 40, borderRadius: 20, marginRight: 10 },
-  metaInfo: { flex: 1 },
-  title: { fontSize: 16, fontWeight: "bold", color: "#000" },
-  subText: { fontSize: 13, color: "gray", marginTop: 2 },
-});

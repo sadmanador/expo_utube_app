@@ -1,13 +1,12 @@
-
 import SafeAreaLayout from "@/components/SafeAreaLayout/SafeAreaLayout";
-import { styles } from "@/Global_style/style";
+import { GlobalStyles } from "@/Global_style/GlobalStyle";
 import React from "react";
 import { Text, View } from "react-native";
 
 const subscriptions = () => {
   return (
     <SafeAreaLayout>
-      <View style={styles.container}>
+      <View style={GlobalStyles.container}>
         <Text>Subscriptions Content</Text>
       </View>
     </SafeAreaLayout>

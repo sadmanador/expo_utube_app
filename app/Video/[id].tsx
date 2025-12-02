@@ -6,17 +6,15 @@ import { useFetch } from "@/hooks/useFetch";
 import { useGamingVideos } from "@/hooks/useGamingVideos";
 import { VideoItem } from "@/types";
 
-import { parseYouTubeDuration } from "@/utils/duration_converter";
-import { value_converter } from "@/utils/value_converter";
+import { parseYouTubeDuration } from "@/utils/converters/duration_converter";
+import { value_converter } from "@/utils/converters/value_converter";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
-  Image,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,

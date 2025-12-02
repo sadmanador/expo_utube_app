@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { NavbarStyles } from "./navbarStyles";
 
 const Navbar = () => {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -22,18 +23,18 @@ const Navbar = () => {
   }, [searchOpen]);
 
   return (
-    <View style={styles.navbar}>
+    <View style={NavbarStyles.navbar}>
       <Image
         source={require("../../assets/images/utube.png")}
-        style={styles.logo}
+        style={NavbarStyles.logo}
       />
 
       {searchOpen ? (
-        <View style={styles.searchContainer}>
+        <View style={NavbarStyles.searchContainer}>
           {/* Input field */}
           <TextInput
             ref={inputRef}
-            style={styles.searchInput}
+            style={NavbarStyles.searchInput}
             placeholder="Search"
             placeholderTextColor="rgba(0,0,0,0.5)"
             value={searchQuery}
@@ -66,33 +67,4 @@ const Navbar = () => {
 
 export default Navbar;
 
-const styles = StyleSheet.create({
-  navbar: {
-    height: 60,
-    marginTop: 40,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 12,
-  },
-  logo: {
-    width: 100,
-    height: 30,
-    resizeMode: "contain",
-  },
-  searchContainer: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    marginLeft: 10,
-    backgroundColor: "#e0e0e0",
-    borderRadius: 6,
-    paddingHorizontal: 6,
-  },
-  searchInput: {
-    flex: 1,
-    color: "#000",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-});
+

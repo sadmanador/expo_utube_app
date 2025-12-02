@@ -1,54 +1,21 @@
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
-  card: {
-    marginBottom: 16,
-    backgroundColor: "#fff",
-  },
-  thumbnailContainer: {
-    position: "relative",
-    backgroundColor: "#ccc",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  thumbnail: {
-    width: "100%",
-    height: 200,
-  },
-  duration: {
+export const VideoCardStyles = StyleSheet.create({
+  card: { marginBottom: 20 },
+  thumbnail: { width: "100%", height: 200 },
+  durationBox: {
     position: "absolute",
-    bottom: 8,
     right: 8,
-    backgroundColor: "rgba(27,27,27,0.9)",
-    color: "#fff",
-    fontWeight: "600",
-    paddingHorizontal: 4,
+    bottom: 8,
+    backgroundColor: "rgba(0,0,0,0.8)",
     borderRadius: 4,
-    fontSize: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
   },
-  infoContainer: {
-    flexDirection: "row",
-    padding: 8,
-    alignItems: "flex-start",
-    gap: 8,
-  },
-  iconWrapper: {
-    marginRight: 8,
-  },
-  title: {
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 2,
-    flexShrink: 1,
-  },
-  channelTitle: {
-    fontSize: 12,
-    fontWeight: "500",
-    color: "gray",
-    marginBottom: 2,
-  },
-  meta: {
-    fontSize: 12,
-    color: "gray",
-  },
+  durationText: { color: "#fff", fontSize: 12, fontWeight: "600" },
+  metaRow: { flexDirection: "row", marginTop: 8, alignItems: "center" },
+  avatar: { width: 40, height: 40, borderRadius: 20, marginRight: 10 },
+  metaInfo: { flex: 1 },
+  title: { fontSize: 16, fontWeight: "bold", color: "#000" },
+  subText: { fontSize: 13, color: "gray", marginTop: 2 },
 });

@@ -1,7 +1,7 @@
 import VideoCard from "@/components/VideoCard/VideoCard";
 import { ChannelItem, VideoItem } from "@/types";
 import { getVideo } from "@/utils/apiService";
-import { value_converter } from "@/utils/value_converter";
+import { value_converter } from "@/utils/converters/value_converter";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
