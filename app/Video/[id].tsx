@@ -1,7 +1,10 @@
 import CommentsSection from "@/components/CommentsSection/CommentsSection";
 import RecommendedList from "@/components/RecommendedList/RecommendedList";
+import { CHANNEL_AVATAR } from "@/constants/api";
 import { useFetch } from "@/hooks/useFetch";
 import { useGamingVideos } from "@/hooks/useGamingVideos";
+import { VideoItem } from "@/types";
+
 import { parseYouTubeDuration } from "@/utils/duration_converter";
 import { value_converter } from "@/utils/value_converter";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -24,16 +27,7 @@ const PLAYER_HEIGHT = 230;
 const HISTORY_KEY = "VIDEO_HISTORY";
 const MAX_HISTORY = 20;
 
-export interface VideoDetails {
-  id: string;
-  title: string;
-  description: string;
-  channelTitle: string;
-  channelAvatar: string;
-  publishedAt: string;
-  viewCount: number;
-  duration: string;
-}
+
 
 const VideoPage = () => {
   const { videos, loading } = useGamingVideos();
@@ -104,12 +98,12 @@ const VideoPage = () => {
     );
 
   const item = data.items[0];
-  const video: VideoDetails = {
+  const video: VideoItem = {
     id: item.id,
     title: item.snippet.title,
     description: item.snippet.description,
     channelTitle: item.snippet.channelTitle,
-    channelAvatar: `https://i.pravatar.cc/100?u=${item.snippet.channelId}`,
+    channelAvatar: `${CHANNEL_AVATAR}${item.snippet.channelId}`,
     publishedAt: item.snippet.publishedAt,
     viewCount: Number(item.statistics?.viewCount ?? 0),
     duration: item.contentDetails?.duration ?? "PT0M0S",

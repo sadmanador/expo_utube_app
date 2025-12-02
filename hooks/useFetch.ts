@@ -1,11 +1,9 @@
 // hooks/useFetch.ts
+import { YouTubeResponse } from "@/types";
 import axiosInstance from "@/utils/apiService";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 
-interface YouTubeResponse<T> {
-  items: T[];
-  nextPageToken?: string;
-}
+
 
 export const useFetch = <T>(
   endpoint: string,

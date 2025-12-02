@@ -1,9 +1,9 @@
 // utils/api.ts
 import axios, { AxiosRequestConfig } from "axios";
 import { ApiResponse, AxiosErrorType } from "@/types";
+import { API_KEY, BASE_URL } from "@/constants/api";
 
-export const API_KEY = "AIzaSyD13qOBkPGLhQu8XB8E36fKh-I1Mtrpvp8";
-export const BASE_URL = "https://www.googleapis.com/youtube/v3";
+
 
 // Single Axios instance with API key and baseURL
 const axiosInstance = axios.create({
@@ -14,12 +14,12 @@ const axiosInstance = axios.create({
 });
 
 // Generic GET request function
-export const getRequest = async <T>(
+export const getRequest = async (
   url: string,
   config?: AxiosRequestConfig
-): Promise<ApiResponse<T>> => {
+): Promise<ApiResponse> => {
   try {
-    const response = await axiosInstance.get<T>(url, config);
+    const response = await axiosInstance.get(url, config);
     return { data: response.data };
   } catch (err) {
     const error = err as AxiosErrorType;
@@ -35,7 +35,7 @@ export const getRequest = async <T>(
 };
 
 // Specific API functions
-export const getVideo = (endpoint: string) => getRequest(endpoint); // API key already in instance
+export const getVideo = (endpoint: string, categoryId?: string) => getRequest(endpoint); // API key already in instance
 
 export const getChannel = (channelId: string) =>
   getRequest(`channels`, {
@@ -44,25 +44,6 @@ export const getChannel = (channelId: string) =>
       id: channelId,
     },
   });
-
-export interface CommentItem {
-  id: string;
-  snippet: {
-    topLevelComment: {
-      snippet: {
-        authorDisplayName: string;
-        authorProfileImageUrl: string;
-        textOriginal: string;
-        publishedAt: string;
-      };
-    };
-  };
-}
-
-export interface CommentsResponse {
-  items: CommentItem[];
-  nextPageToken?: string;
-}
 
 export const fetchComments = async ({
   videoId,

@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from "react";
-import { View, Image, TextInput, TouchableOpacity, StyleSheet } from "react-native";
-import { Tabs } from "expo-router";
+import Navbar from "@/components/Navbar/Navbar";
 import Entypo from "@expo/vector-icons/Entypo";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import Navbar from "@/components/Navbar/Navbar";
+import { Tabs } from "expo-router";
+import React from "react";
+import { View } from "react-native";
 
 export default function TabsLayout() {
   

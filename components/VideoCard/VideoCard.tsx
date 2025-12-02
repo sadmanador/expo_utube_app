@@ -1,16 +1,13 @@
-import React from "react";
-import { View, Text, Image, Pressable, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
-import moment from "moment";
+import { CHANNEL_AVATAR } from "@/constants/api";
+import { VideoCardItemProps } from "@/types";
 import { parseYouTubeDuration } from "@/utils/duration_converter";
 import { value_converter } from "@/utils/value_converter";
-import { VideoItem } from "@/types";
+import { useRouter } from "expo-router";
+import moment from "moment";
+import React from "react";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
-export interface VideoCardProps {
-  item: VideoItem;
-}
-
-const VideoCard: React.FC<VideoCardProps> = ({ item }) => {
+const VideoCard: React.FC<VideoCardItemProps> = ({ item }) => {
   const router = useRouter();
 
   const videoId = typeof item.id === "string" ? item.id : item.id.videoId;
@@ -28,16 +25,20 @@ const VideoCard: React.FC<VideoCardProps> = ({ item }) => {
         />
         {duration ? (
           <View style={styles.durationBox}>
-            <Text style={styles.durationText}>{parseYouTubeDuration(duration)}</Text>
+            <Text style={styles.durationText}>
+              {parseYouTubeDuration(duration)}
+            </Text>
           </View>
         ) : null}
       </Pressable>
 
       {/* Video Info */}
       <View style={styles.metaRow}>
-        <Pressable onPress={() => router.push(`/Channel/${item.snippet.channelId}`)}>
+        <Pressable
+          onPress={() => router.push(`/Channel/${item.snippet.channelId}`)}
+        >
           <Image
-            source={{ uri: `https://i.pravatar.cc/100?u=${item.snippet.channelId}` }}
+            source={{ uri: `${CHANNEL_AVATAR}${item.snippet.channelId}` }}
             style={styles.avatar}
           />
         </Pressable>

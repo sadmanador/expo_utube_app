@@ -1,14 +1,25 @@
 import { AxiosRequestConfig, AxiosResponse } from "axios";
+import { StyleProp, ViewStyle } from "react-native";
 
-export interface ApiResponse<T> {
-  items?: T[];
-  data?: T;
+export interface ApiResponse<T = any> {
+  data?: {
+    etag: string;
+    items: T[];
+    kind: string;
+    nextPageToken?: string;
+    pageInfo: PageInfo;
+  };
   error?: {
     message: string;
     status?: number;
     details?: Record<string, unknown>;
     name?: string;
-  };
+  } | null;
+}
+
+interface PageInfo {
+  resultsPerPage: number;
+  totalResults: number;
 }
 
 export interface AxiosErrorType {
@@ -22,73 +33,6 @@ export interface AxiosErrorType {
   stack?: string;
 }
 
-export interface CommentSnippet {
-  authorChannelId: {
-    value: string;
-  };
-  authorChannelUrl: string;
-  authorDisplayName: string;
-  authorProfileImageUrl: string;
-  canRate: boolean;
-  channelId: string;
-  likeCount: number;
-  publishedAt: string;
-  textDisplay: string;
-  textOriginal: string;
-  updatedAt: string;
-  videoId: string;
-  viewerRating: string;
-}
-
-export interface TopLevelComment {
-  etag: string;
-  id: string;
-  kind: string;
-  snippet: CommentSnippet;
-}
-
-export interface VideoItem {
-  id: string | { videoId: string };
-  snippet: {
-    title: string;
-    description: string;
-    channelTitle: string;
-    channelId: string;
-    publishedAt: string;
-    thumbnails: {
-      default: { url: string; width?: number; height?: number };
-      medium: { url: string; width?: number; height?: number };
-      high: { url: string; width?: number; height?: number };
-    };
-    categoryId?: string;
-  };
-  contentDetails: {
-    videoId: string;
-    duration: string;
-    dimension: string;
-    definition: string;
-    caption: string;
-    licensedContent: boolean;
-    regionRestriction?: {
-      allowed?: string[];
-      blocked?: string[];
-    };
-  };
-  statistics: {
-    viewCount: string;
-    likeCount: string;
-    dislikeCount: string;
-    favoriteCount: string;
-    commentCount: string;
-    subscriberCount?: string;
-  };
-}
-
-
-export interface VideoSearchResponse {
-  items: VideoItem[];
-}
-
 export interface SidebarContextProps {
   sidebar: boolean;
   setSidebar: (sidebar: boolean) => void;
@@ -98,11 +42,204 @@ export interface SidebarContextProps {
   setTheme: (theme: string) => void;
 }
 
-export interface VideoCardProps {
-  item: VideoItem;
+export type VideoCardItemProps = { item: VideoItem };
+
+export interface ChannelSnippet {
+  id: string; // Channel ID
+  kind?: string; // "youtube#channel"
+  etag?: string;
+
+  snippet: {
+    title: string;
+    description: string;
+    customUrl?: string;
+    publishedAt?: string;
+    thumbnails?: {
+      default: { url: string; width?: number; height?: number };
+      medium?: { url: string; width?: number; height?: number };
+      high?: { url: string; width?: number; height?: number };
+    };
+    localized?: {
+      title: string;
+      description: string;
+    };
+    country?: string;
+  };
+
+  brandingSettings?: {
+    channel?: {
+      title?: string;
+      description?: string;
+      keywords?: string;
+      defaultTab?: string;
+      moderateComments?: boolean;
+    };
+    image?: {
+      bannerExternalUrl?: string;
+      bannerImageUrl?: string;
+      bannerMobileImageUrl?: string;
+    };
+  };
+
+  statistics?: {
+    viewCount: string;
+    subscriberCount?: string;
+    hiddenSubscriberCount?: boolean;
+    videoCount?: string;
+  };
+
+  contentDetails?: {
+    relatedPlaylists?: {
+      uploads: string;
+      likes?: string;
+      favorites?: string;
+      watchHistory?: string;
+      watchLater?: string;
+    };
+  };
 }
 
-export interface VideoDetails {
-  duration: string;
+export interface ChannelBrandingSettings {
+  image?: {
+    bannerExternalUrl?: string;
+  };
+}
+
+export interface ChannelStatistics {
   viewCount: string;
+  subscriberCount?: string;
+  videoCount?: string;
+}
+
+export interface PlaylistItem {
+  contentDetails: { videoId: string };
+  snippet?: {
+    title?: string;
+    description?: string;
+    thumbnails?: {
+      default?: { url: string };
+      medium?: { url: string };
+      high?: { url: string };
+    };
+  };
+}
+
+export interface VideoItem {
+  id: string; // videoId
+  title: string;
+  description: string;
+  channelId: string;
+  channelTitle: string;
+  channelAvatar?: string; // optional for UI
+  thumbnail?: string; // optional main thumbnail
+  publishedAt: string;
+  viewCount?: number;
+  likeCount?: number;
+  duration?: string;
+}
+
+export interface SafeAreaLayoutProps {
+  children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+}
+
+export interface Props {
+  videoId: string;
+  userAvatar: string;
+}
+
+export interface RecommendedVideo {
+  id: string;
+  title: string;
+  channelTitle: string;
+  channelId: string;
+  thumbnail: string;
+  viewCount?: number;
+  publishedAt?: string;
+}
+
+export interface RecommendedListProps {
+  videos: RecommendedVideo[];
+}
+
+export interface YouTubeResponse<T> {
+  items: VideoItem[];
+  nextPageToken?: string;
+}
+
+export interface ShortVideo {
+  id: string;
+  title: string;
+  channelTitle: string;
+  channelId: string;
+  channelAvatar: string;
+  description: string;
+}
+
+// Flattened Comment type for both API and UI
+export interface Comment {
+  id: string;
+  authorDisplayName: string;
+  authorProfileImageUrl: string;
+  textOriginal: string;
+  publishedAt: string;
+  replies?: Comment[]; // optional nested replies
+}
+
+// API response wrapper for comments
+export interface CommentsResponse {
+  items: Comment[];
+  nextPageToken?: string;
+}
+
+export interface ChannelItem {
+  id: string;
+  kind?: string;
+  etag?: string;
+
+  snippet: {
+    title: string;
+    description: string;
+    customUrl?: string;
+    publishedAt?: string;
+    thumbnails: {
+      default: { url: string; width?: number; height?: number };
+      medium?: { url: string; width?: number; height?: number };
+      high?: { url: string; width?: number; height?: number };
+    };
+    country?: string;
+  };
+
+  brandingSettings?: {
+    channel?: {
+      title?: string;
+      description?: string;
+      keywords?: string;
+      defaultLanguage?: string;
+      country?: string;
+    };
+    image?: {
+      bannerExternalUrl?: string;
+      bannerMobileUrl?: string;
+      bannerTabletUrl?: string;
+      bannerTvUrl?: string;
+      bannerTvHighUrl?: string;
+      bannerExternalHdUrl?: string;
+    };
+  };
+
+  statistics: {
+    viewCount: string;
+    subscriberCount?: string;
+    hiddenSubscriberCount?: boolean;
+    videoCount?: string;
+  };
+
+  contentDetails: {
+    relatedPlaylists: {
+      uploads: string;
+      likes?: string;
+      favorites?: string;
+    };
+  };
 }

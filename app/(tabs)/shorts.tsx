@@ -1,70 +1,31 @@
-import React, { useRef, useState, useEffect } from "react";
+import { useYouTubeShortVideos } from "@/hooks/useYouTubeShortVideos";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
+import React, { useRef, useState } from "react";
 import {
-  View,
-  FlatList,
-  Dimensions,
-  Text,
   ActivityIndicator,
-  StyleSheet,
+  Dimensions,
+  FlatList,
   Image,
   Pressable,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import YoutubePlayer from "react-native-youtube-iframe";
-import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { API_KEY } from "@/utils/apiService";
 
 const { width, height } = Dimensions.get("window");
 const HISTORY_KEY = "VIDEO_HISTORY";
 const MAX_HISTORY = 20;
 
-interface VideoItem {
-  id: string;
-  title: string;
-  channelTitle: string;
-  channelId: string;
-  channelAvatar: string;
-  description: string;
-}
-
 const FullScreenVideoFeed: React.FC = () => {
   const playerRefs = useRef<any[]>([]);
   const [playingIndex, setPlayingIndex] = useState(0);
-  const [videos, setVideos] = useState<VideoItem[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  // ✔ Fetch using custom hook
+  const { videos, loading } = useYouTubeShortVideos("20", 20);
+
   const router = useRouter();
-
-  const fetchVideos = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(
-        `https://www.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&videoCategoryId=20&maxResults=20&regionCode=US&key=${API_KEY}`
-      );
-      const data = await res.json();
-
-      if (data.items?.length) {
-        const mapped: VideoItem[] = data.items.map((item: any) => ({
-          id: item.id,
-          title: item.snippet.title,
-          channelTitle: item.snippet.channelTitle,
-          channelId: item.snippet.channelId,
-          channelAvatar: `https://i.pravatar.cc/100?u=${item.snippet.channelId}`,
-          description: item.snippet.description,
-        }));
-        setVideos(mapped);
-      } else {
-        setVideos([]);
-      }
-    } catch (err) {
-      console.error("Failed to fetch videos:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchVideos();
-  }, []);
 
   // Store video to history when played
   const storeVideoHistory = async (videoId: string) => {
@@ -97,11 +58,10 @@ const FullScreenVideoFeed: React.FC = () => {
     );
   }
 
-  const renderItem = ({ item, index }: { item: VideoItem; index: number }) => (
+  const renderItem = ({ item, index }: any) => (
     <View style={{ width, height }}>
       {/* Video Player */}
       {(() => {
-        // separate types declared in local scope
         type InitialPlayerParams = {
           controls?: boolean;
           modestbranding?: boolean;
@@ -129,32 +89,36 @@ const FullScreenVideoFeed: React.FC = () => {
             play={playingIndex === index}
             mute={false}
             forceAndroidAutoplay
-            initialPlayerParams={{
-              controls: true,
-              modestbranding: true,
-              rel: false,
-              showinfo: false,
-            } as InitialPlayerParams}
+            initialPlayerParams={
+              {
+                controls: true,
+                modestbranding: true,
+                rel: false,
+                showinfo: false,
+              } as InitialPlayerParams
+            }
             onChangeState={(state: YouTubeState) => {
               if (state === "playing") {
-                storeVideoHistory(item.id); // store in history
+                storeVideoHistory(item.id);
               }
             }}
           />
         );
       })()}
 
-      {/* Video Info Below */}
+      {/* Video Info */}
       <View style={styles.videoInfo}>
         <View style={styles.channelRow}>
           <Pressable onPress={() => router.push(`/Channel/${item.channelId}`)}>
             <Image source={{ uri: item.channelAvatar }} style={styles.avatar} />
           </Pressable>
+
           <View style={{ flex: 1 }}>
             <Text style={styles.title}>{item.title}</Text>
             <Text style={styles.channel}>{item.channelTitle}</Text>
           </View>
         </View>
+
         <Text style={styles.description} numberOfLines={12}>
           {item.description}
         </Text>
@@ -171,10 +135,9 @@ const FullScreenVideoFeed: React.FC = () => {
       showsVerticalScrollIndicator={false}
       snapToInterval={height}
       decelerationRate="fast"
-      onMomentumScrollEnd={(ev) => {
-        const index = Math.round(ev.nativeEvent.contentOffset.y / height);
-        setPlayingIndex(index);
-      }}
+      onMomentumScrollEnd={(ev) =>
+        setPlayingIndex(Math.round(ev.nativeEvent.contentOffset.y / height))
+      }
       getItemLayout={(_, index) => ({
         length: height,
         offset: height * index,

@@ -1,30 +1,16 @@
-import { API_KEY } from "@/utils/apiService";
+import { API_KEY } from "@/constants/api";
+import { Comment, Props } from "@/types";
+
 import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  Image,
-  TextInput,
-  Pressable,
   ActivityIndicator,
+  Image,
+  Pressable,
   ScrollView,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
-
-interface Comment {
-  id: string;
-  authorDisplayName: string;
-  authorProfileImageUrl: string;
-  textOriginal: string;
-  publishedAt: string;
-  replies?: Comment[];
-}
-
-interface Props {
-  videoId: string;
-  userAvatar: string;
-}
-
-
 
 const CommentsSection: React.FC<Props> = ({ videoId, userAvatar }) => {
   const [comments, setComments] = useState<Comment[]>([]);

@@ -1,12 +1,10 @@
+import { VideoCardItemProps } from "@/types";
 import React from "react";
-import { View, Image, Text, StyleSheet, Dimensions } from "react-native";
-import { VideoItem } from "@/types";
+import { Dimensions, Image, StyleSheet, Text, View } from "react-native";
 
-interface ShortsCardProps {
-  item: VideoItem;
-}
 
-const ShortsCard: React.FC<ShortsCardProps> = ({ item }) => {
+
+const ShortsCard: React.FC<VideoCardItemProps> = ({ item }) => {
   const screenWidth = Dimensions.get("window").width;
   const thumbHeight = screenWidth * 0.56; // typical 16:9 ratio
 

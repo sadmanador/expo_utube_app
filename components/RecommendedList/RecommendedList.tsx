@@ -1,34 +1,25 @@
+import { CHANNEL_AVATAR } from "@/constants/api";
+import { RecommendedListProps, VideoItem } from "@/types";
+
+import { value_converter } from "@/utils/value_converter";
+import { useRouter } from "expo-router";
+import moment from "moment";
 import React from "react";
 import {
-  View,
-  Text,
-  Pressable,
-  Image,
-  StyleSheet,
   FlatList,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { value_converter } from "@/utils/value_converter";
-import moment from "moment";
 
-export interface RecommendedVideo {
-  id: string;
-  title: string;
-  channelTitle: string;
-  channelId: string;
-  thumbnail: string;
-  viewCount?: number;
-  publishedAt?: string;
-}
 
-interface RecommendedListProps {
-  videos: RecommendedVideo[];
-}
 
 const RecommendedList: React.FC<RecommendedListProps> = ({ videos }) => {
   const router = useRouter();
 
-  const renderItem = ({ item }: { item: RecommendedVideo }) => {
+  const renderItem = ({ item }: { item: VideoItem }) => {
     const views = item.viewCount;
 
 
@@ -49,7 +40,7 @@ const RecommendedList: React.FC<RecommendedListProps> = ({ videos }) => {
           <Pressable onPress={() => router.push(`/Channel/${item.channelId}`)}>
             <Image
               source={{
-                uri: `https://i.pravatar.cc/100?u=${item.channelId}`,
+                uri: `${CHANNEL_AVATAR}${item.channelId}`,
               }}
               style={styles.avatar}
             />

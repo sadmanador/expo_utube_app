@@ -1,12 +1,10 @@
 // components/SafeAreaLayout.tsx
 import { styles } from "@/Global_style/style";
+import { SafeAreaLayoutProps } from "@/types";
 import React from "react";
-import { Platform, StatusBar, StyleProp, View, ViewStyle } from "react-native";
+import { Platform, StatusBar, View,  } from "react-native";
 
-interface SafeAreaLayoutProps {
-  children: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
-}
+
 
 export default function SafeAreaLayout({
   children,
