@@ -1,4 +1,5 @@
-import SafeAreaLayout from "@/components/SafeAreaLayout";
+
+import SafeAreaLayout from "@/components/SafeAreaLayout/SafeAreaLayout";
 import { styles } from "@/Global_style/style";
 import React from "react";
 import { Text, View } from "react-native";
