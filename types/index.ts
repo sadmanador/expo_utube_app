@@ -33,14 +33,6 @@ export interface AxiosErrorType {
   stack?: string;
 }
 
-export interface SidebarContextProps {
-  sidebar: boolean;
-  setSidebar: (sidebar: boolean) => void;
-  category: number;
-  setCategory: (category: number) => void;
-  theme: string;
-  setTheme: (theme: string) => void;
-}
 
 export interface VideoCardItemProps {
   item: {
@@ -67,72 +59,10 @@ export interface VideoCardItemProps {
 }
 
 
-export interface ChannelSnippet {
-  id: string; // Channel ID
-  kind?: string; // "youtube#channel"
-  etag?: string;
 
-  snippet: {
-    title: string;
-    description: string;
-    customUrl?: string;
-    publishedAt?: string;
-    thumbnails?: {
-      default: { url: string; width?: number; height?: number };
-      medium?: { url: string; width?: number; height?: number };
-      high?: { url: string; width?: number; height?: number };
-    };
-    localized?: {
-      title: string;
-      description: string;
-    };
-    country?: string;
-  };
 
-  brandingSettings?: {
-    channel?: {
-      title?: string;
-      description?: string;
-      keywords?: string;
-      defaultTab?: string;
-      moderateComments?: boolean;
-    };
-    image?: {
-      bannerExternalUrl?: string;
-      bannerImageUrl?: string;
-      bannerMobileImageUrl?: string;
-    };
-  };
 
-  statistics?: {
-    viewCount: string;
-    subscriberCount?: string;
-    hiddenSubscriberCount?: boolean;
-    videoCount?: string;
-  };
 
-  contentDetails?: {
-    relatedPlaylists?: {
-      uploads: string;
-      likes?: string;
-      favorites?: string;
-      watchHistory?: string;
-      watchLater?: string;
-    };
-  };
-}
-
-export interface ChannelBrandingSettings {
-  image?: {
-    bannerExternalUrl?: string;
-  };
-}
-
-export interface ChannelStatistics {
-  viewCount: string;
-  subscriberCount?: string;
-  videoCount?: string;
-}
 
 export interface PlaylistItem {
   contentDetails: { videoId: string };
@@ -147,17 +77,7 @@ export interface PlaylistItem {
   };
 }
 
-export interface VideoItemSnippet {
-  id: string;                  // video ID
-  title: string;               // video title
-  description: string;         // video description
-  channelId: string;           // ID of the channel
-  channelTitle: string;        // name of the channel
-  channelAvatar?: string;      // optional, avatar URL for UI
-  publishedAt: string;         // ISO date string
-  viewCount?: number;          // optional, number of views
-  duration?: string;           // optional, ISO 8601 duration
-}
+
 
 
 export interface YouTubeVideoItem {
@@ -231,21 +151,8 @@ export interface ShortVideo {
   description: string;
 }
 
-// Flattened Comment type for both API and UI
-export interface Comment {
-  id: string;
-  authorDisplayName: string;
-  authorProfileImageUrl: string;
-  textOriginal: string;
-  publishedAt: string;
-  replies?: Comment[]; // optional nested replies
-}
 
-// API response wrapper for comments
-export interface CommentsResponse {
-  items: Comment[];
-  nextPageToken?: string;
-}
+
 
 export interface ChannelItem {
   id: string;
