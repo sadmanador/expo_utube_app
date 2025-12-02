@@ -42,7 +42,30 @@ export interface SidebarContextProps {
   setTheme: (theme: string) => void;
 }
 
-export type VideoCardItemProps = { item: VideoItem };
+export interface VideoCardItemProps {
+  item: {
+    id: string | { videoId: string };
+    snippet: {
+      title: string;
+      description?: string;
+      channelId: string;
+      channelTitle: string;
+      publishedAt: string;
+      thumbnails: {
+        medium: { url: string };
+        high?: { url: string };
+      };
+    };
+    statistics?: {
+      viewCount?: string;
+      likeCount?: string;
+    };
+    contentDetails?: {
+      duration?: string;
+    };
+  };
+}
+
 
 export interface ChannelSnippet {
   id: string; // Channel ID
