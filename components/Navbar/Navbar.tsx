@@ -24,10 +24,12 @@ const Navbar = () => {
 
   return (
     <View style={NavbarStyles.navbar}>
-      <Image
-        source={require("../../assets/images/utube.png")}
-        style={NavbarStyles.logo}
-      />
+      <TouchableOpacity onPress={() => router.push("/")}>
+        <Image
+          source={require("../../assets/images/utube.png")}
+          style={NavbarStyles.logo}
+        />
+      </TouchableOpacity>
 
       {searchOpen ? (
         <View style={NavbarStyles.searchContainer}>
@@ -66,5 +68,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-
