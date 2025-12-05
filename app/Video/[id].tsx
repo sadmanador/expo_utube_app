@@ -3,7 +3,7 @@ import CommentsSection from "@/components/CommentsSection/CommentsSection";
 import RecommendedList from "@/components/RecommendedList/RecommendedList";
 import { CHANNEL_AVATAR } from "@/constants/api";
 import { useFetch } from "@/hooks/useFetch";
-import { useGamingVideos } from "@/hooks/useGamingVideos";
+import { useRecommendedVideos } from "@/hooks/useRecommendedVideos";
 import { VideoItem } from "@/types";
 
 import { parseYouTubeDuration } from "@/utils/converters/duration_converter";
@@ -49,14 +49,19 @@ interface YouTubeVideoItem {
 }
 
 const VideoPage = () => {
-  const { videos } = useGamingVideos();
   const { id } = useLocalSearchParams() as { id?: string };
 
-  // ✅ Explicitly type the useFetch with YouTubeVideoItem
+  // ✅ Fetch current video data
   const { data, isLoading, error } = useFetch<YouTubeVideoItem>("videos", {
     part: "snippet,contentDetails,statistics",
     id,
   });
+
+  // ----------------------
+  // Only fetch recommended videos after we have channelId
+  // ----------------------
+  const channelId = data?.items?.[0]?.snippet.channelId;
+  const { videos: recommendedVideos } = useRecommendedVideos(channelId);
 
   const [playing, setPlaying] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -95,7 +100,6 @@ const VideoPage = () => {
         const trimmed = newHistory.slice(0, MAX_HISTORY);
 
         await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
-        console.log("Added to history:", trimmed);
       } catch (err) {
         console.error("Failed to update video history:", err);
       }
@@ -120,12 +124,11 @@ const VideoPage = () => {
       </View>
     );
 
+  const apiItem = data.items[0];
+
   // ----------------------
   // Map API response to VideoItem
   // ----------------------
-  const apiItem = data.items[0];
-
-  // ✅ Create a properly typed video object
   const video: VideoItem = {
     id: apiItem.id,
     title: apiItem.snippet.title,
@@ -164,7 +167,7 @@ const VideoPage = () => {
             <ChannelAvatarButton
               channelId={video.channelId}
               uri={video.channelAvatar}
-              size={50} // optional, default is 40
+              size={50}
             />
 
             <View style={{ flex: 1 }}>
@@ -202,7 +205,7 @@ const VideoPage = () => {
         </View>
 
         <View style={{ padding: 10 }}>
-          <RecommendedList videos={videos} />
+          <RecommendedList videos={recommendedVideos} />
         </View>
       </ScrollView>
     </View>

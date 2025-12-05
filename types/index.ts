@@ -1,6 +1,60 @@
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 import { StyleProp, ViewStyle } from "react-native";
 
+/* -----------------------------------------------------
+ * SHARED TYPES (used across multiple interfaces)
+ * ----------------------------------------------------*/
+
+/** (SHARED) A single thumbnail format used by YouTube APIs */
+export interface Thumbnail {
+  url: string;
+  width?: number;
+  height?: number;
+}
+
+/** (SHARED) Collection of YouTube thumbnails */
+export interface Thumbnails {
+  default?: Thumbnail;
+  medium?: Thumbnail;
+  high?: Thumbnail;
+}
+
+/** (SHARED) Common snippet fields across YouTube API items */
+export interface BaseSnippet {
+  title: string;
+  description?: string;
+  publishedAt?: string;
+  channelId?: string;
+  channelTitle?: string;
+  thumbnails?: Thumbnails;
+}
+
+/** (SHARED) Video statistics for API responses */
+export interface VideoStatistics {
+  viewCount?: string;
+  likeCount?: string;
+}
+
+/** (SHARED) Video content details: duration or additional data */
+export interface VideoContentDetails {
+  duration?: string;
+}
+
+/** (SHARED) Flattened UI-specific video fields (Recommended, Short, Main) */
+export interface BaseUIVideo {
+  id: string;
+  title: string;
+  channelTitle: string;
+  channelId: string;
+  thumbnail?: string;
+  viewCount?: number;
+  publishedAt?: string;
+}
+
+/* -----------------------------------------------------
+ * API Response Types
+ * ----------------------------------------------------*/
+
 export interface ApiResponse<T = any> {
   data?: {
     etag: string;
@@ -22,6 +76,10 @@ interface PageInfo {
   totalResults: number;
 }
 
+/* -----------------------------------------------------
+ * Axios Error Type
+ * ----------------------------------------------------*/
+
 export interface AxiosErrorType {
   code?: string;
   config: AxiosRequestConfig;
@@ -33,127 +91,63 @@ export interface AxiosErrorType {
   stack?: string;
 }
 
+/* -----------------------------------------------------
+ * YouTube API Types (using SHARED parts)
+ * ----------------------------------------------------*/
+
 export interface VideoCardItemProps {
   item: {
     id: string | { videoId: string };
-    snippet: {
-      title: string;
-      description?: string;
-      channelId: string;
-      channelTitle: string;
-      publishedAt: string;
-      thumbnails: {
-        medium: { url: string };
-        high?: { url: string };
-      };
-    };
-    statistics?: {
-      viewCount?: string;
-      likeCount?: string;
-    };
-    contentDetails?: {
-      duration?: string;
-    };
+    snippet: BaseSnippet;
+    statistics?: VideoStatistics;
+    contentDetails?: VideoContentDetails;
   };
 }
 
 export interface PlaylistItem {
   contentDetails: { videoId: string };
-  snippet?: {
-    title?: string;
-    description?: string;
-    thumbnails?: {
-      default?: { url: string };
-      medium?: { url: string };
-      high?: { url: string };
-    };
-  };
+  snippet?: BaseSnippet;
 }
 
 export interface YouTubeVideoItem {
-  id: string;
-  snippet: {
-    title: string;
-    description: string;
-    channelId: string;
-    channelTitle: string;
-    publishedAt: string;
-  };
-  statistics?: {
-    viewCount?: string;
-    likeCount?: string;
-  };
-  contentDetails?: {
-    duration?: string;
-  };
+  id: string | { videoId: string };
+  snippet: BaseSnippet;
+  statistics?: VideoStatistics;
+  contentDetails?: VideoContentDetails;
 }
 
-// App type (used for UI)
-export interface VideoItem {
-  id: string;
-  title: string;
+/* -----------------------------------------------------
+ * UI Types (Flattened Video Types)
+ * ----------------------------------------------------*/
+
+export interface VideoItem extends BaseUIVideo {
   description: string;
-  channelTitle: string;
   channelAvatar: string;
-  channelId: string;
-  publishedAt: string;
-  viewCount?: number;
   duration?: string;
-  thumbnail?: string;
 }
 
-export interface SafeAreaLayoutProps {
-  children: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
-}
-
-export interface Props {
-  videoId: string;
-  userAvatar: string;
-}
-
-export interface RecommendedVideo {
-  id: string;
-  title: string;
-  channelTitle: string;
-  channelId: string;
-  thumbnail: string;
-  viewCount?: number;
-  publishedAt?: string;
-}
+export interface RecommendedVideo extends BaseUIVideo {}
 
 export interface RecommendedListProps {
   videos: RecommendedVideo[];
 }
 
-export interface YouTubeResponse<T> {
-  items: T[];
-  nextPageToken?: string;
-}
-
-export interface ShortVideo {
-  id: string;
-  title: string;
-  channelTitle: string;
-  channelId: string;
+export interface ShortVideo extends BaseUIVideo {
   channelAvatar: string;
   description: string;
 }
+
+/* -----------------------------------------------------
+ * Channel Type (using SHARED thumbnails + snippet)
+ * ----------------------------------------------------*/
 
 export interface ChannelItem {
   id: string;
   kind?: string;
   etag?: string;
-  snippet: {
-    title: string;
-    description: string;
+
+  snippet: BaseSnippet & {
     customUrl?: string;
-    publishedAt?: string;
-    thumbnails: {
-      default: { url: string; width?: number; height?: number };
-      medium?: { url: string; width?: number; height?: number };
-      high?: { url: string; width?: number; height?: number };
-    };
     country?: string;
   };
 
@@ -191,24 +185,45 @@ export interface ChannelItem {
   };
 }
 
+/* -----------------------------------------------------
+ * Comments
+ * ----------------------------------------------------*/
+
 export interface UseCommentsProps {
   videoId: string;
   maxResults?: number;
 }
 
-// Flattened Comment type for both API and UI
+/** Flattened Comment type */
 export interface Comment {
   id: string;
   authorDisplayName: string;
   authorProfileImageUrl: string;
   textOriginal: string;
   publishedAt: string;
-  replies?: Comment[]; // optional nested replies
+  replies?: Comment[];
 }
 
-// API response wrapper for comments
 export interface CommentsResponse {
   items: Comment[];
   nextPageToken?: string;
 }
 
+/* -----------------------------------------------------
+ * Misc
+ * ----------------------------------------------------*/
+
+export interface SafeAreaLayoutProps {
+  children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+}
+
+export interface Props {
+  videoId: string;
+  userAvatar: string;
+}
+
+export interface YouTubeResponse<T> {
+  items: T[];
+  nextPageToken?: string;
+}

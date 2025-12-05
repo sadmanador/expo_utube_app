@@ -3,8 +3,6 @@ import axios, { AxiosRequestConfig } from "axios";
 import { ApiResponse, AxiosErrorType } from "@/types";
 import { API_KEY, BASE_URL } from "@/constants/api";
 
-
-
 // Single Axios instance with API key and baseURL
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -35,7 +33,8 @@ export const getRequest = async (
 };
 
 // Specific API functions
-export const getVideo = (endpoint: string, categoryId?: string) => getRequest(endpoint); // API key already in instance
+export const getVideo = (endpoint: string, categoryId?: string) =>
+  getRequest(endpoint); 
 
 export const getChannel = (channelId: string) =>
   getRequest(`channels`, {
@@ -52,8 +51,7 @@ export const fetchComments = async ({
   videoId: string;
   pageToken?: string;
 }) => {
-  const API_KEY = "YOUR_YOUTUBE_API_KEY";
-  const url = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&pageToken=${pageToken}&maxResults=20&key=${API_KEY}`;
+  const url = `${BASE_URL}/commentThreads?part=snippet&videoId=${videoId}&pageToken=${pageToken}&maxResults=20&key=${API_KEY}`;
 
   const res = await fetch(url);
   const data = await res.json();
