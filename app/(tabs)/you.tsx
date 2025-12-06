@@ -12,6 +12,7 @@ import { getVideo } from "@/utils/apiService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { VideoItem } from "@/types";
 import { useFocusEffect } from "@react-navigation/native";
+import { useRecommendedVideos } from "@/hooks/useRecommendedVideos"; // new
 
 const HISTORY_KEY = "VIDEO_HISTORY";
 
@@ -75,6 +76,12 @@ const YouPage = () => {
     }
   };
 
+  // ----------------------
+  // Fetch recommended videos for the first video in history
+  // ----------------------
+  const channelId = historyVideos?.[0]?.channelId;
+  const { videos: recommendedVideos } = useRecommendedVideos(channelId);
+
   if (loading)
     return (
       <View style={styles.center}>
@@ -99,6 +106,7 @@ const YouPage = () => {
         </Pressable>
       </View>
 
+      {/* History Videos */}
       <FlatList
         horizontal
         data={historyVideos}
@@ -115,6 +123,26 @@ const YouPage = () => {
         )}
         showsHorizontalScrollIndicator={false}
       />
+
+      {/* Recommended Videos Section */}
+      {recommendedVideos.length > 0 && (
+        <View style={{ marginTop: 20 }}>
+          <Text style={[styles.sectionTitle, { marginLeft: 10 }]}>
+            Recommended
+          </Text>
+          <FlatList
+            horizontal
+            data={recommendedVideos}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View style={styles.cardWrapper}>
+                <VideoCard item={item as any} />
+              </View>
+            )}
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
+      )}
     </View>
   );
 };

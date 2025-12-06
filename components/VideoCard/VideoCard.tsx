@@ -22,9 +22,16 @@ const VideoCard: React.FC<VideoCardItemProps> = ({ item }) => {
     <View style={VideoCardStyles.card}>
       <Pressable onPress={() => router.push(`/Video/${videoId}`)}>
         <Image
-          source={{ uri: item.snippet.thumbnails.medium.url }}
+          source={{
+            uri:
+              item.snippet.thumbnails?.medium?.url ||
+              item.snippet.thumbnails?.high?.url ||
+              item.snippet.thumbnails?.default?.url ||
+              "https://via.placeholder.com/480x360?text=No+Thumbnail",
+          }}
           style={VideoCardStyles.thumbnail}
         />
+
         {duration ? (
           <View style={VideoCardStyles.durationBox}>
             <Text style={VideoCardStyles.durationText}>
@@ -37,9 +44,9 @@ const VideoCard: React.FC<VideoCardItemProps> = ({ item }) => {
       {/* Video Info */}
       <View style={VideoCardStyles.metaRow}>
         <ChannelAvatarButton
-          channelId={item.snippet.channelId}
-          uri={`${CHANNEL_AVATAR}${item.snippet.channelId}`}
-          size={40} // optional, default is 40
+          channelId={item.snippet.channelId ?? ""}
+          uri={`${CHANNEL_AVATAR}${item.snippet.channelId ?? ""}`}
+          size={40}
         />
 
         <View style={VideoCardStyles.metaInfo}>

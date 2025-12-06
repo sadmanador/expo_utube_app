@@ -126,8 +126,9 @@ const ChannelPage = () => {
         <Image
           source={{
             uri:
-              channelInfo.snippet.thumbnails.high?.url ||
-              channelInfo.snippet.thumbnails.default.url,
+              channelInfo.snippet.thumbnails?.high?.url ??
+              channelInfo.snippet.thumbnails?.default?.url ??
+              "",
           }}
           style={styles.avatar}
         />
