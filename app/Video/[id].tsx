@@ -1,14 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Dimensions,
   ScrollView,
   StyleSheet,
   Text,
   View,
+  Dimensions,
 } from "react-native";
 import YoutubePlayer from "react-native-youtube-iframe";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import moment from "moment";
 
@@ -21,27 +19,22 @@ import { useRecommendedVideos } from "@/hooks/useRecommendedVideos";
 import { VideoItem, YouTubeVideoItem } from "@/types";
 import { parseYouTubeDuration } from "@/utils/converters/duration_converter";
 import { value_converter } from "@/utils/converters/value_converter";
-import {
-  PLAYER_HEIGHT,
-  HISTORY_KEY,
-  MAX_HISTORY,
-} from "@/constants/videoConfig";
+import { PLAYER_HEIGHT } from "@/constants/videoConfig";
 import StatusView from "@/components/StatusView/StatusView";
+import { useAddVideoToHistory } from "@/hooks/useAddVideoToHistory"; // ✅ import hook
 
 const { width } = Dimensions.get("window");
 
 const VideoPage = () => {
   const { id } = useLocalSearchParams() as { id?: string };
 
-  // ✅ Fetch current video data
+  // Fetch current video data
   const { data, isLoading, error } = useFetch<YouTubeVideoItem>("videos", {
     part: "snippet,contentDetails,statistics",
     id,
   });
 
-  // ----------------------
   // Only fetch recommended videos after we have channelId
-  // ----------------------
   const channelId = data?.items?.[0]?.snippet.channelId;
   const { videos: recommendedVideos } = useRecommendedVideos(channelId);
 
@@ -51,17 +44,16 @@ const VideoPage = () => {
 
   const playerRef = useRef<typeof YoutubePlayer>(null);
 
-  // ----------------------
+  // Hook for adding video to history
+  const addVideoToHistory = useAddVideoToHistory();
+
   // Autoplay shortly after mount
-  // ----------------------
   useEffect(() => {
     const timer = setTimeout(() => setPlaying(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
-  // ----------------------
   // Pause/resume on navigation
-  // ----------------------
   useFocusEffect(
     useCallback(() => {
       setPlaying(true);
@@ -69,32 +61,16 @@ const VideoPage = () => {
     }, [])
   );
 
-  // ----------------------
   // Update video history
-  // ----------------------
   useEffect(() => {
-    const addToHistory = async (videoId: string) => {
-      try {
-        const json = await AsyncStorage.getItem(HISTORY_KEY);
-        const history: string[] = json ? JSON.parse(json) : [];
-
-        const newHistory = [videoId, ...history.filter((id) => id !== videoId)];
-        const trimmed = newHistory.slice(0, MAX_HISTORY);
-
-        await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
-      } catch (err) {
-        console.error("Failed to update video history:", err);
-      }
-    };
-
     if (!isLoading && data?.items?.length) {
       const apiItem = data.items[0];
       const videoId =
         typeof apiItem.id === "string" ? apiItem.id : apiItem.id.videoId;
 
-      addToHistory(videoId);
+      addVideoToHistory(videoId); // ✅ use hook
     }
-  }, [isLoading, data]);
+  }, [isLoading, data, addVideoToHistory]);
 
   if (isLoading || error || !data?.items?.length) {
     return (
@@ -109,9 +85,7 @@ const VideoPage = () => {
   const videoId =
     typeof apiItem.id === "string" ? apiItem.id : apiItem.id.videoId;
 
-  // ----------------------
   // Map API response to VideoItem
-  // ----------------------
   const video: VideoItem = {
     id: videoId,
     title: apiItem.snippet.title,

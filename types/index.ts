@@ -233,3 +233,20 @@ export interface StatusViewProps {
   error?: string | null;
   style?: object;
 }
+
+
+export interface InitialPlayerParams  {
+  controls?: boolean;
+  modestbranding?: boolean;
+  rel?: boolean;
+  showinfo?: boolean;
+  [key: string]: unknown;
+};
+
+export type YouTubeState =
+  | "unstarted"
+  | "ended"
+  | "playing"
+  | "paused"
+  | "buffering"
+  | "cued";

@@ -1,47 +1,32 @@
-import ChannelAvatarButton from "@/components/ChannelAvatarButton/ChannelAvatarButton";
-import { useYouTubeShortVideos } from "@/hooks/useYouTubeShortVideos";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
   FlatList,
-  Image,
-  Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import YoutubePlayer from "react-native-youtube-iframe";
+import YoutubePlayer, { InitialPlayerParams } from "react-native-youtube-iframe";
+import ChannelAvatarButton from "@/components/ChannelAvatarButton/ChannelAvatarButton";
+import { useYouTubeShortVideos } from "@/hooks/useYouTubeShortVideos";
+import { YouTubeState } from "@/types";
+import { useAddVideoToHistory } from "@/hooks/useAddVideoToHistory"; // ✅ Import the hook
 
 const { width, height } = Dimensions.get("window");
-const HISTORY_KEY = "VIDEO_HISTORY";
-const MAX_HISTORY = 20;
 
+// --------------------
+// Component
+// --------------------
 const FullScreenVideoFeed: React.FC = () => {
-  const playerRefs = useRef<any[]>([]);
+  // Typed ref array for YoutubePlayer
+  const playerRefs = useRef<(React.ElementRef<typeof YoutubePlayer> | null)[]>([]);
   const [playingIndex, setPlayingIndex] = useState(0);
 
-  // ✔ Fetch using custom hook
   const { videos, loading } = useYouTubeShortVideos("20", 20);
 
-  const router = useRouter();
-
-  // Store video to history when played
-  const storeVideoHistory = async (videoId: string) => {
-    try {
-      const json = await AsyncStorage.getItem(HISTORY_KEY);
-      const history: string[] = json ? JSON.parse(json) : [];
-
-      const newHistory = [videoId, ...history.filter((id) => id !== videoId)];
-      const trimmed = newHistory.slice(0, MAX_HISTORY);
-
-      await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
-    } catch (err) {
-      console.error("Failed to update video history:", err);
-    }
-  };
+  // ✅ Use the hook to add video to history
+  const addVideoToHistory = useAddVideoToHistory();
 
   if (loading) {
     return (
@@ -59,53 +44,32 @@ const FullScreenVideoFeed: React.FC = () => {
     );
   }
 
-  const renderItem = ({ item, index }: any) => (
+  // --------------------
+  // Render each video
+  // --------------------
+  const renderItem = ({ item, index }: { item: any; index: number }) => (
     <View style={{ width, height }}>
-      {/* Video Player */}
-      {(() => {
-        type InitialPlayerParams = {
-          controls?: boolean;
-          modestbranding?: boolean;
-          rel?: boolean;
-          showinfo?: boolean;
-          [key: string]: unknown;
-        };
-
-        type YouTubeState =
-          | "unstarted"
-          | "ended"
-          | "playing"
-          | "paused"
-          | "buffering"
-          | "cued";
-
-        type YoutubePlayerRef = React.ElementRef<typeof YoutubePlayer> | null;
-
-        return (
-          <YoutubePlayer
-            ref={(ref: YoutubePlayerRef) => (playerRefs.current[index] = ref)}
-            height={height * 0.25}
-            width={width}
-            videoId={item.id}
-            play={playingIndex === index}
-            mute={false}
-            forceAndroidAutoplay
-            initialPlayerParams={
-              {
-                controls: true,
-                modestbranding: true,
-                rel: false,
-                showinfo: false,
-              } as InitialPlayerParams
-            }
-            onChangeState={(state: YouTubeState) => {
-              if (state === "playing") {
-                storeVideoHistory(item.id);
-              }
-            }}
-          />
-        );
-      })()}
+      {/* YouTube Player */}
+      <YoutubePlayer
+        ref={(ref: React.ElementRef<typeof YoutubePlayer> | null) => {
+          playerRefs.current[index] = ref;
+        }}
+        height={height * 0.25}
+        width={width}
+        videoId={item.id}
+        play={playingIndex === index}
+        mute={false}
+        forceAndroidAutoplay
+        initialPlayerParams={{
+          controls: true,
+          modestbranding: true,
+          rel: false,
+          showinfo: false,
+        } as InitialPlayerParams}
+        onChangeState={(state: YouTubeState) => {
+          if (state === "playing") addVideoToHistory(item.id); // ✅ use hook
+        }}
+      />
 
       {/* Video Info */}
       <View style={styles.videoInfo}>
@@ -113,9 +77,8 @@ const FullScreenVideoFeed: React.FC = () => {
           <ChannelAvatarButton
             channelId={item.channelId}
             uri={item.channelAvatar}
-            size={50} // optional, default is 40
+            size={50}
           />
-
           <View style={{ flex: 1 }}>
             <Text style={styles.title}>{item.title}</Text>
             <Text style={styles.channel}>{item.channelTitle}</Text>
@@ -152,6 +115,9 @@ const FullScreenVideoFeed: React.FC = () => {
 
 export default FullScreenVideoFeed;
 
+// --------------------
+// Styles
+// --------------------
 const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   videoInfo: {
