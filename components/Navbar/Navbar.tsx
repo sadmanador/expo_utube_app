@@ -1,13 +1,12 @@
 import { Entypo } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Image,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import { useRouter } from "expo-router";
 import { NavbarStyles } from "./navbarStyles";
 
 const Navbar = () => {

@@ -1,15 +1,18 @@
-import SafeAreaLayout from "@/components/SafeAreaLayout/SafeAreaLayout";
-import { GlobalStyles } from "@/Global_style/GlobalStyle";
 import React from "react";
 import { Text, View } from "react-native";
 
 const subscriptions = () => {
   return (
-    <SafeAreaLayout>
-      <View style={GlobalStyles.container}>
-        <Text>Subscriptions Content</Text>
-      </View>
-    </SafeAreaLayout>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: "#f0f0f0",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Text>Subscriptions Content</Text>
+    </View>
   );
 };
 
