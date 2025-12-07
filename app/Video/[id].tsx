@@ -1,16 +1,3 @@
-import ChannelAvatarButton from "@/components/ChannelAvatarButton/ChannelAvatarButton";
-import CommentsSection from "@/components/CommentsSection/CommentsSection";
-import RecommendedList from "@/components/RecommendedList/RecommendedList";
-import { CHANNEL_AVATAR } from "@/constants/api";
-import { useFetch } from "@/hooks/useFetch";
-import { useRecommendedVideos } from "@/hooks/useRecommendedVideos";
-import { VideoItem } from "@/types";
-
-import { parseYouTubeDuration } from "@/utils/converters/duration_converter";
-import { value_converter } from "@/utils/converters/value_converter";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
-import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -21,32 +8,27 @@ import {
   View,
 } from "react-native";
 import YoutubePlayer from "react-native-youtube-iframe";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import moment from "moment";
+
+import ChannelAvatarButton from "@/components/ChannelAvatarButton/ChannelAvatarButton";
+import CommentsSection from "@/components/CommentsSection/CommentsSection";
+import RecommendedList from "@/components/RecommendedList/RecommendedList";
+import { CHANNEL_AVATAR } from "@/constants/api";
+import { useFetch } from "@/hooks/useFetch";
+import { useRecommendedVideos } from "@/hooks/useRecommendedVideos";
+import { VideoItem, YouTubeVideoItem } from "@/types";
+import { parseYouTubeDuration } from "@/utils/converters/duration_converter";
+import { value_converter } from "@/utils/converters/value_converter";
+import {
+  PLAYER_HEIGHT,
+  HISTORY_KEY,
+  MAX_HISTORY,
+} from "@/constants/videoConfig";
+import StatusView from "@/components/StatusView/StatusView";
 
 const { width } = Dimensions.get("window");
-const PLAYER_HEIGHT = 230;
-const HISTORY_KEY = "VIDEO_HISTORY";
-const MAX_HISTORY = 20;
-
-// ----------------------
-// YouTube API response type
-// ----------------------
-interface YouTubeVideoItem {
-  id: string;
-  snippet: {
-    title: string;
-    description: string;
-    channelId: string;
-    channelTitle: string;
-    publishedAt: string;
-  };
-  statistics?: {
-    viewCount?: string;
-    likeCount?: string;
-  };
-  contentDetails?: {
-    duration?: string;
-  };
-}
 
 const VideoPage = () => {
   const { id } = useLocalSearchParams() as { id?: string };
@@ -106,37 +88,38 @@ const VideoPage = () => {
     };
 
     if (!isLoading && data?.items?.length) {
-      addToHistory(data.items[0].id);
+      const apiItem = data.items[0];
+      const videoId =
+        typeof apiItem.id === "string" ? apiItem.id : apiItem.id.videoId;
+
+      addToHistory(videoId);
     }
   }, [isLoading, data]);
 
-  if (isLoading)
+  if (isLoading || error || !data?.items?.length) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
-      </View>
+      <StatusView
+        loading={isLoading}
+        error={error ? "Error loading video" : undefined}
+      />
     );
-
-  if (error || !data?.items?.length)
-    return (
-      <View style={styles.center}>
-        <Text>Error loading video</Text>
-      </View>
-    );
+  }
 
   const apiItem = data.items[0];
+  const videoId =
+    typeof apiItem.id === "string" ? apiItem.id : apiItem.id.videoId;
 
   // ----------------------
   // Map API response to VideoItem
   // ----------------------
   const video: VideoItem = {
-    id: apiItem.id,
+    id: videoId,
     title: apiItem.snippet.title,
-    description: apiItem.snippet.description,
-    channelTitle: apiItem.snippet.channelTitle,
+    description: apiItem.snippet.description ?? "",
+    channelTitle: apiItem.snippet.channelTitle ?? "",
+    channelId: apiItem.snippet.channelId ?? "",
     channelAvatar: `${CHANNEL_AVATAR}${apiItem.snippet.channelId}`,
-    channelId: apiItem.snippet.channelId,
-    publishedAt: apiItem.snippet.publishedAt,
+    publishedAt: apiItem.snippet.publishedAt ?? "",
     viewCount: Number(apiItem.statistics?.viewCount ?? 0),
     duration: apiItem.contentDetails?.duration ?? "PT0M0S",
   };

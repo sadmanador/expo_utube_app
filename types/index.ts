@@ -227,3 +227,9 @@ export interface YouTubeResponse<T> {
   items: T[];
   nextPageToken?: string;
 }
+
+export interface StatusViewProps {
+  loading?: boolean;
+  error?: string | null;
+  style?: object;
+}

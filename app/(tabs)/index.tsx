@@ -2,6 +2,7 @@ import React from "react";
 import { View, FlatList, ActivityIndicator, Text } from "react-native";
 import VideoCard from "@/components/VideoCard/VideoCard";
 import { useInfiniteFetch } from "@/hooks/useFetch";
+import StatusView from "@/components/StatusView/StatusView";
 
 export default function Home() {
   const {
@@ -18,19 +19,15 @@ export default function Home() {
     regionCode: "US",
   });
 
-  if (isLoading)
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Loading...</Text>
-      </View>
-    );
+ if (isLoading || error) {
+  return (
+    <StatusView
+      loading={isLoading}
+      error={error ? "Error fetching videos" : undefined}
+    />
+  );
+}
 
-  if (error)
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Error fetching videos</Text>
-      </View>
-    );
 
   const videos = data?.pages.flatMap((page: any) => page.items) || [];
 
