@@ -1,7 +1,7 @@
 // hooks/useFetch.ts
-import { YouTubeResponse } from "@/types";
+import { MostPopularParams, YouTubeResponse, YouTubeVideoItem } from "@/types";
 import axiosInstance from "@/utils/apiService";
-import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 
 
@@ -16,19 +16,17 @@ export const useFetch = <T>(endpoint: string, params?: Record<string, any>) => {
 };
 
 
-export const useInfiniteFetch = <T>(
-  endpoint: string,
-  params?: Record<string, any>
-) => {
-  return useInfiniteQuery<YouTubeResponse<T>>({
-    queryKey: [endpoint, params],
+export const useInfiniteVideos = (params?: MostPopularParams) => {
+  return useInfiniteQuery<YouTubeResponse<YouTubeVideoItem>>({
+    queryKey: ["videos", params],
     queryFn: async ({ pageParam = "" }) => {
-      const response = await axiosInstance.get(endpoint, {
+      const response = await axiosInstance.get("videos", {
         params: { ...params, pageToken: pageParam },
       });
       return response.data;
     },
     getNextPageParam: (lastPage) => lastPage.nextPageToken ?? undefined,
-    initialPageParam: "", // ✅ required for TS + TanStack v5
+    initialPageParam: "",
   });
 };
+

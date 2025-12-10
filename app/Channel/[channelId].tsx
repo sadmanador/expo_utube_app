@@ -72,7 +72,7 @@ const ChannelPage = () => {
     <FlatList
       data={videos}
       keyExtractor={(item) => item.id}
-      renderItem={({ item }) => <VideoCard item={item as any} />}
+      renderItem={({ item }) => <VideoCard item={item} />}
       ListHeaderComponent={renderHeader}
       contentContainerStyle={{ paddingBottom: 20 }}
     />

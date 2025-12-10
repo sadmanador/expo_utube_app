@@ -72,7 +72,7 @@ const YouPage = () => {
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <View style={styles.cardWrapper}>
-                <VideoCard item={item as any} />
+                <VideoCard item={item} />
               </View>
             )}
             showsHorizontalScrollIndicator={false}

@@ -2,24 +2,21 @@ import { AxiosRequestConfig, AxiosResponse } from "axios";
 import { StyleProp, ViewStyle } from "react-native";
 
 /* -----------------------------------------------------
- * SHARED TYPES (used across multiple interfaces)
+ * 1. SHARED BASE TYPES
  * ----------------------------------------------------*/
 
-/** (SHARED) A single thumbnail format used by YouTube APIs */
 export interface Thumbnail {
   url: string;
   width?: number;
   height?: number;
 }
 
-/** (SHARED) Collection of YouTube thumbnails */
 export interface Thumbnails {
   default?: Thumbnail;
   medium?: Thumbnail;
   high?: Thumbnail;
 }
 
-/** (SHARED) Common snippet fields across YouTube API items */
 export interface BaseSnippet {
   title: string;
   description?: string;
@@ -29,18 +26,15 @@ export interface BaseSnippet {
   thumbnails?: Thumbnails;
 }
 
-/** (SHARED) Video statistics for API responses */
 export interface VideoStatistics {
   viewCount?: string;
   likeCount?: string;
 }
 
-/** (SHARED) Video content details: duration or additional data */
 export interface VideoContentDetails {
   duration?: string;
 }
 
-/** (SHARED) Flattened UI-specific video fields (Recommended, Short, Main) */
 export interface BaseUIVideo {
   id: string;
   title: string;
@@ -52,8 +46,13 @@ export interface BaseUIVideo {
 }
 
 /* -----------------------------------------------------
- * API Response Types
+ * 2. API RESPONSE TYPES
  * ----------------------------------------------------*/
+
+interface PageInfo {
+  resultsPerPage: number;
+  totalResults: number;
+}
 
 export interface ApiResponse<T = any> {
   data?: {
@@ -71,13 +70,13 @@ export interface ApiResponse<T = any> {
   } | null;
 }
 
-interface PageInfo {
-  resultsPerPage: number;
-  totalResults: number;
+export interface YouTubeResponse<T> {
+  items: T[];
+  nextPageToken?: string;
 }
 
 /* -----------------------------------------------------
- * Axios Error Type
+ * 3. AXIOS & NETWORK ERROR TYPES
  * ----------------------------------------------------*/
 
 export interface AxiosErrorType {
@@ -92,22 +91,8 @@ export interface AxiosErrorType {
 }
 
 /* -----------------------------------------------------
- * YouTube API Types (using SHARED parts)
+ * 4. RAW YOUTUBE API MODELS
  * ----------------------------------------------------*/
-
-export interface VideoCardItemProps {
-  item: {
-    id: string | { videoId: string };
-    snippet: BaseSnippet;
-    statistics?: VideoStatistics;
-    contentDetails?: VideoContentDetails;
-  };
-}
-
-export interface PlaylistItem {
-  contentDetails: { videoId: string };
-  snippet?: BaseSnippet;
-}
 
 export interface YouTubeVideoItem {
   id: string | { videoId: string };
@@ -116,8 +101,18 @@ export interface YouTubeVideoItem {
   contentDetails?: VideoContentDetails;
 }
 
+export interface PlaylistItem {
+  contentDetails: { videoId: string };
+  snippet?: BaseSnippet;
+}
+
+/** Raw YouTube API prop for VideoCard */
+export interface VideoCardItemProps {
+  item: YouTubeVideoItem;
+}
+
 /* -----------------------------------------------------
- * UI Types (Flattened Video Types)
+ * 5. UI-FLATTENED VIDEO MODELS
  * ----------------------------------------------------*/
 
 export interface VideoItem extends BaseUIVideo {
@@ -126,19 +121,24 @@ export interface VideoItem extends BaseUIVideo {
   duration?: string;
 }
 
+export interface ShortVideo extends BaseUIVideo {
+  channelAvatar: string;
+  description: string;
+}
+
 export interface RecommendedVideo extends BaseUIVideo {}
 
 export interface RecommendedListProps {
   videos: RecommendedVideo[];
 }
 
-export interface ShortVideo extends BaseUIVideo {
-  channelAvatar: string;
-  description: string;
+/** UI-flattened prop for VideoCard */
+export interface VideoCardUIItemProps {
+  item: VideoItem;
 }
 
 /* -----------------------------------------------------
- * Channel Type (using SHARED thumbnails + snippet)
+ * 6. CHANNEL MODEL
  * ----------------------------------------------------*/
 
 export interface ChannelItem {
@@ -186,7 +186,7 @@ export interface ChannelItem {
 }
 
 /* -----------------------------------------------------
- * Comments
+ * 7. COMMENTS
  * ----------------------------------------------------*/
 
 export interface UseCommentsProps {
@@ -194,7 +194,6 @@ export interface UseCommentsProps {
   maxResults?: number;
 }
 
-/** Flattened Comment type */
 export interface Comment {
   id: string;
   authorDisplayName: string;
@@ -210,7 +209,7 @@ export interface CommentsResponse {
 }
 
 /* -----------------------------------------------------
- * Misc
+ * 8. MISC
  * ----------------------------------------------------*/
 
 export interface SafeAreaLayoutProps {
@@ -223,25 +222,19 @@ export interface Props {
   userAvatar: string;
 }
 
-export interface YouTubeResponse<T> {
-  items: T[];
-  nextPageToken?: string;
-}
-
 export interface StatusViewProps {
   loading?: boolean;
   error?: string | null;
   style?: object;
 }
 
-
-export interface InitialPlayerParams  {
+export interface InitialPlayerParams {
   controls?: boolean;
   modestbranding?: boolean;
   rel?: boolean;
   showinfo?: boolean;
   [key: string]: unknown;
-};
+}
 
 export type YouTubeState =
   | "unstarted"
@@ -251,9 +244,19 @@ export type YouTubeState =
   | "buffering"
   | "cued";
 
+/* -----------------------------------------------------
+ * 9. CONSOLIDATED VIDEO CARD PROPS
+ * ----------------------------------------------------*/
 
-  export interface VideoCardUIItemProps {
-  item: VideoItem; // your flattened type
+export type VideoCardProps =
+  | VideoCardItemProps // raw API result
+  | VideoCardUIItemProps // full UI-flattened video
+  | { item: RecommendedVideo }; // minimal recommended UI item
+
+export interface MostPopularParams {
+  part: string; 
+  chart: "mostPopular";
+  maxResults?: number;
+  regionCode?: string;
+  pageToken?: string;
 }
-
-export type VideoCardProps = VideoCardItemProps | VideoCardUIItemProps;

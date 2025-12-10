@@ -1,8 +1,8 @@
-import React from "react";
-import { View, FlatList, ActivityIndicator, Text } from "react-native";
-import VideoCard from "@/components/VideoCard/VideoCard";
-import { useInfiniteFetch } from "@/hooks/useFetch";
 import StatusView from "@/components/StatusView/StatusView";
+import VideoCard from "@/components/VideoCard/VideoCard";
+import { useInfiniteVideos } from "@/hooks/useFetch";
+import React from "react";
+import { ActivityIndicator, FlatList, View } from "react-native";
 
 export default function Home() {
   const {
@@ -12,12 +12,12 @@ export default function Home() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteFetch<any>("videos", {
-    part: "snippet,contentDetails,statistics",
-    chart: "mostPopular",
-    maxResults: 5,
-    regionCode: "US",
-  });
+  } = useInfiniteVideos({
+  part: "snippet,contentDetails,statistics",
+  chart: "mostPopular",
+  maxResults: 5,
+  regionCode: "US",
+});
 
  if (isLoading || error) {
   return (
@@ -29,7 +29,7 @@ export default function Home() {
 }
 
 
-  const videos = data?.pages.flatMap((page: any) => page.items) || [];
+  const videos = data?.pages.flatMap((page) => page.items) || [];
 
   return (
     <View style={{ flex: 1, padding: 10, backgroundColor: "#fff" }}>
