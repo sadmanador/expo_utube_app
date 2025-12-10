@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -8,79 +8,14 @@ import {
   Pressable,
 } from "react-native";
 import VideoCard from "@/components/VideoCard/VideoCard";
-import { getVideo } from "@/utils/apiService";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { VideoItem } from "@/types";
-import { useFocusEffect } from "@react-navigation/native";
-import { useRecommendedVideos } from "@/hooks/useRecommendedVideos"; // new
-
-const HISTORY_KEY = "VIDEO_HISTORY";
+import { useHistoryVideos } from "@/hooks/useHistoryVideos";
+import { useRecommendedVideos } from "@/hooks/useRecommendedVideos";
 
 const YouPage = () => {
-  const [historyVideos, setHistoryVideos] = useState<VideoItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { historyVideos, loading, clearHistory } = useHistoryVideos();
 
-  const fetchHistoryVideos = async () => {
-    setLoading(true);
-    try {
-      const json = await AsyncStorage.getItem(HISTORY_KEY);
-      const videoIds: string[] = json ? JSON.parse(json) : [];
-
-      if (videoIds.length === 0) {
-        setHistoryVideos([]);
-        return;
-      }
-
-      const res = await getVideo(
-        `/videos?part=snippet,contentDetails,statistics&id=${videoIds.join(",")}`
-      );
-
-      const items = (res.data as { items?: VideoItem[] }).items ?? [];
-
-      if (items.length) {
-        const sorted: VideoItem[] = videoIds
-          .map((id) =>
-            items.find((v) =>
-              typeof v.id === "string"
-                ? v.id === id
-                : v.id && typeof v.id === "object" && "videoId" in v.id && (v.id as { videoId: string }).videoId === id
-            )
-          )
-          .filter((v): v is VideoItem => v !== undefined);
-
-        setHistoryVideos(sorted);
-      } else {
-        setHistoryVideos([]);
-      }
-    } catch (err) {
-      console.error("Failed to fetch history videos:", err);
-      setHistoryVideos([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Refresh history whenever the screen comes into focus
-  useFocusEffect(
-    useCallback(() => {
-      fetchHistoryVideos();
-    }, [])
-  );
-
-  const clearHistory = async () => {
-    try {
-      await AsyncStorage.removeItem(HISTORY_KEY);
-      setHistoryVideos([]);
-    } catch (err) {
-      console.error("Failed to clear history:", err);
-    }
-  };
-
-  // ----------------------
-  // Fetch recommended videos for the first video in history
-  // ----------------------
-  const channelId = historyVideos?.[0]?.channelId;
-  const { videos: recommendedVideos } = useRecommendedVideos(channelId);
+  const firstChannelId = historyVideos?.[0]?.channelId;
+  const { videos: recommendedVideos } = useRecommendedVideos(firstChannelId);
 
   if (loading)
     return (
@@ -89,7 +24,7 @@ const YouPage = () => {
       </View>
     );
 
-  if (historyVideos.length === 0)
+  if (!historyVideos.length)
     return (
       <View style={styles.center}>
         <Text>No watch history yet.</Text>
@@ -98,7 +33,7 @@ const YouPage = () => {
 
   return (
     <View style={{ paddingVertical: 10 }}>
-      {/* Header with Clear Button */}
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.sectionTitle}>History</Text>
         <Pressable style={styles.clearButton} onPress={clearHistory}>
@@ -124,12 +59,13 @@ const YouPage = () => {
         showsHorizontalScrollIndicator={false}
       />
 
-      {/* Recommended Videos Section */}
+      {/* Recommended Videos */}
       {recommendedVideos.length > 0 && (
         <View style={{ marginTop: 20 }}>
           <Text style={[styles.sectionTitle, { marginLeft: 10 }]}>
             Recommended
           </Text>
+
           <FlatList
             horizontal
             data={recommendedVideos}
@@ -148,6 +84,7 @@ const YouPage = () => {
 };
 
 export default YouPage;
+
 
 const styles = StyleSheet.create({
   header: {

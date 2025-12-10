@@ -1,96 +1,14 @@
 import VideoCard from "@/components/VideoCard/VideoCard";
-import { ChannelItem, VideoItem } from "@/types";
-import { getVideo } from "@/utils/apiService";
-import { value_converter } from "@/utils/converters/value_converter";
 import { useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useChannelData } from "@/hooks/useChannelData";
+import { value_converter } from "@/utils/converters/value_converter";
+import React from "react";
 
 const ChannelPage = () => {
-  const { channelId } = useLocalSearchParams() as { channelId?: string };
-
-  const [channelInfo, setChannelInfo] = useState<ChannelItem | null>(null);
-  const [videos, setVideos] = useState<VideoItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchChannelVideos = async () => {
-    if (!channelId) return;
-
-    try {
-      setLoading(true);
-
-      // 1️⃣ Fetch channel info
-      const channelRes = await getVideo(
-        `/channels?part=snippet,brandingSettings,statistics,contentDetails&id=${channelId}`
-      );
-
-      if (channelRes.error) {
-        setError(channelRes.error.message);
-        return;
-      }
-
-      const channelData = channelRes.data?.items?.[0] as
-        | ChannelItem
-        | undefined;
-      if (!channelData) {
-        setError("Channel not found");
-        return;
-      }
-
-      setChannelInfo(channelData);
-
-      // 2️⃣ Get uploads playlist
-      const uploadsPlaylistId =
-        channelData.contentDetails.relatedPlaylists.uploads;
-      if (!uploadsPlaylistId) {
-        setError("Uploads playlist not found");
-        return;
-      }
-
-      // 3️⃣ Fetch playlist items
-      const playlistRes = await getVideo(
-        `/playlistItems?part=snippet,contentDetails&playlistId=${uploadsPlaylistId}&maxResults=20`
-      );
-
-      const playlistItems = playlistRes.data?.items || [];
-      const videoIds = playlistItems
-        .map((item) => item.contentDetails.videoId)
-        .join(",");
-
-      if (!videoIds) {
-        setError("No videos found");
-        return;
-      }
-
-      // 4️⃣ Fetch full video details
-      const videosRes = await getVideo(
-        `/videos?part=snippet,contentDetails,statistics&id=${videoIds}`
-      );
-
-      const validVideos = (videosRes.data?.items || []).filter(
-        (video) => video.snippet
-      );
-      setVideos(validVideos);
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || "Failed to fetch videos");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchChannelVideos();
-  }, [channelId]);
+  const { channelId } = useLocalSearchParams();
+  const id = Array.isArray(channelId) ? channelId[0] : channelId;
+  const { channelInfo, videos, loading, error } = useChannelData(id);
 
   if (loading)
     return (
@@ -107,15 +25,16 @@ const ChannelPage = () => {
     );
 
   const subscriberCount = value_converter(
-    Number(channelInfo.statistics.subscriberCount || 0)
+    Number(channelInfo.statistics.subscriberCount)
   );
+
   const videoCount = value_converter(
-    Number(channelInfo.statistics.videoCount || 0)
+    Number(channelInfo.statistics.videoCount)
   );
 
   const renderHeader = () => (
     <View>
-      {channelInfo.brandingSettings?.image?.bannerExternalUrl && (
+      {!!channelInfo.brandingSettings?.image?.bannerExternalUrl && (
         <Image
           source={{ uri: channelInfo.brandingSettings.image.bannerExternalUrl }}
           style={styles.banner}
@@ -124,19 +43,14 @@ const ChannelPage = () => {
 
       <View style={styles.channelHeader}>
         <Image
-          source={{
-            uri:
-              channelInfo.snippet.thumbnails?.high?.url ??
-              channelInfo.snippet.thumbnails?.default?.url ??
-              "",
-          }}
+          source={{ uri: channelInfo.snippet.thumbnails?.high?.url }}
           style={styles.avatar}
         />
-        <View style={{ flex: 1, marginLeft: 12 }}>
+        <View style={{ marginLeft: 12, flex: 1 }}>
           <Text style={styles.channelTitle}>{channelInfo.snippet.title}</Text>
-          {channelInfo.snippet.customUrl && (
-            <Text style={styles.subText}>@{channelInfo.snippet.customUrl}</Text>
-          )}
+          <Text style={styles.subText}>
+            @{channelInfo.snippet.customUrl}
+          </Text>
           <Text style={styles.subText}>
             {subscriberCount} subscribers • {videoCount} videos
           </Text>
@@ -160,14 +74,13 @@ const ChannelPage = () => {
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => <VideoCard item={item as any} />}
       ListHeaderComponent={renderHeader}
-      ListFooterComponent={<View style={{ height: 60 }} />}
       contentContainerStyle={{ paddingBottom: 20 }}
-      showsVerticalScrollIndicator={false}
     />
   );
 };
 
 export default ChannelPage;
+
 
 const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
