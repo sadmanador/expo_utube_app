@@ -250,3 +250,10 @@ export type YouTubeState =
   | "paused"
   | "buffering"
   | "cued";
+
+
+  export interface VideoCardUIItemProps {
+  item: VideoItem; // your flattened type
+}
+
+export type VideoCardProps = VideoCardItemProps | VideoCardUIItemProps;

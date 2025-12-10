@@ -1,5 +1,5 @@
 import { CHANNEL_AVATAR } from "@/constants/api";
-import { VideoCardItemProps } from "@/types";
+import { VideoCardProps, VideoCardItemProps, VideoItem } from "@/types";
 import { parseYouTubeDuration } from "@/utils/converters/duration_converter";
 import { value_converter } from "@/utils/converters/value_converter";
 import { useRouter } from "expo-router";
@@ -9,13 +9,61 @@ import { Image, Pressable, Text, View } from "react-native";
 import ChannelAvatarButton from "../ChannelAvatarButton/ChannelAvatarButton";
 import { VideoCardStyles } from "./VideoCardStyles";
 
-const VideoCard: React.FC<VideoCardItemProps> = ({ item }) => {
+const VideoCard: React.FC<VideoCardProps> = ({ item }) => {
   const router = useRouter();
 
-  const videoId = typeof item.id === "string" ? item.id : item.id.videoId;
-  const duration = item.contentDetails?.duration || ""; // use only contentDetails.duration
-  const views = item.statistics?.viewCount
-    ? value_converter(Number(item.statistics.viewCount))
+  // Detect which item type this is
+  const isUI = !("snippet" in item);
+
+  if (isUI) {
+    /** -------------------- UI MODE (VideoItem) -------------------- **/
+    const video = item as VideoItem;
+
+    return (
+      <View style={VideoCardStyles.card}>
+        <Pressable onPress={() => router.push(`/Video/${video.id}`)}>
+          <Image
+            source={{ uri: video.thumbnail }}
+            style={VideoCardStyles.thumbnail}
+          />
+
+          {video.duration ? (
+            <View style={VideoCardStyles.durationBox}>
+              <Text style={VideoCardStyles.durationText}>
+                {video.duration}
+              </Text>
+            </View>
+          ) : null}
+        </Pressable>
+
+        <View style={VideoCardStyles.metaRow}>
+          <ChannelAvatarButton
+            channelId={video.channelId}
+            uri={video.channelAvatar}
+            size={40}
+          />
+
+          <View style={VideoCardStyles.metaInfo}>
+            <Text style={VideoCardStyles.title} numberOfLines={2}>
+              {video.title}
+            </Text>
+            <Text style={VideoCardStyles.subText}>
+              {video.channelTitle} • {value_converter(Number(video.viewCount))} views •{" "}
+              {moment(video.publishedAt).fromNow()}
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  /** -------------------- RAW YOUTUBE API MODE -------------------- **/
+  const api = item as VideoCardItemProps["item"];
+
+  const videoId = typeof api.id === "string" ? api.id : api.id.videoId;
+  const duration = api.contentDetails?.duration || "";
+  const views = api.statistics?.viewCount
+    ? value_converter(Number(api.statistics.viewCount))
     : "";
 
   return (
@@ -24,9 +72,9 @@ const VideoCard: React.FC<VideoCardItemProps> = ({ item }) => {
         <Image
           source={{
             uri:
-              item.snippet.thumbnails?.medium?.url ||
-              item.snippet.thumbnails?.high?.url ||
-              item.snippet.thumbnails?.default?.url ||
+              api.snippet.thumbnails?.medium?.url ||
+              api.snippet.thumbnails?.high?.url ||
+              api.snippet.thumbnails?.default?.url ||
               "https://via.placeholder.com/480x360?text=No+Thumbnail",
           }}
           style={VideoCardStyles.thumbnail}
@@ -41,21 +89,20 @@ const VideoCard: React.FC<VideoCardItemProps> = ({ item }) => {
         ) : null}
       </Pressable>
 
-      {/* Video Info */}
       <View style={VideoCardStyles.metaRow}>
         <ChannelAvatarButton
-          channelId={item.snippet.channelId ?? ""}
-          uri={`${CHANNEL_AVATAR}${item.snippet.channelId ?? ""}`}
+          channelId={api.snippet.channelId ?? ""}
+          uri={`${CHANNEL_AVATAR}${api.snippet.channelId ?? ""}`}
           size={40}
         />
 
         <View style={VideoCardStyles.metaInfo}>
           <Text style={VideoCardStyles.title} numberOfLines={2}>
-            {item.snippet.title}
+            {api.snippet.title}
           </Text>
           <Text style={VideoCardStyles.subText}>
-            {item.snippet.channelTitle} {views ? `• ${views} views` : ""} •{" "}
-            {moment(item.snippet.publishedAt).fromNow()}
+            {api.snippet.channelTitle} {views ? `• ${views} views` : ""} •{" "}
+            {moment(api.snippet.publishedAt).fromNow()}
           </Text>
         </View>
       </View>
