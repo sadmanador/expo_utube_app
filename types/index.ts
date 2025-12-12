@@ -111,6 +111,20 @@ export interface VideoCardItemProps {
   item: YouTubeVideoItem;
 }
 
+export interface YouTubeVideoItemForSearch {
+  id: { videoId: string } | string;
+  snippet: {
+    title: string;
+    description: string;
+    channelId: string;
+    channelTitle: string;
+    publishedAt: string;
+    thumbnails: { medium: { url: string } };
+  };
+  statistics?: { viewCount?: string };
+  contentDetails?: { duration?: string };
+}
+
 /* -----------------------------------------------------
  * 5. UI-FLATTENED VIDEO MODELS
  * ----------------------------------------------------*/
@@ -136,6 +150,12 @@ export interface RecommendedListProps {
 export interface VideoCardUIItemProps {
   item: VideoItem;
 }
+
+/* Consolidated VideoCard props */
+export type VideoCardProps =
+  | VideoCardItemProps // raw API result
+  | VideoCardUIItemProps // full UI-flattened video
+  | { item: RecommendedVideo }; // minimal recommended UI item
 
 /* -----------------------------------------------------
  * 6. CHANNEL MODEL
@@ -209,7 +229,7 @@ export interface CommentsResponse {
 }
 
 /* -----------------------------------------------------
- * 8. MISC
+ * 8. MISC UI TYPES
  * ----------------------------------------------------*/
 
 export interface SafeAreaLayoutProps {
@@ -245,13 +265,8 @@ export type YouTubeState =
   | "cued";
 
 /* -----------------------------------------------------
- * 9. CONSOLIDATED VIDEO CARD PROPS
+ * 9. YOUTUBE VIDEO API PARAMS
  * ----------------------------------------------------*/
-
-export type VideoCardProps =
-  | VideoCardItemProps // raw API result
-  | VideoCardUIItemProps // full UI-flattened video
-  | { item: RecommendedVideo }; // minimal recommended UI item
 
 export interface MostPopularParams {
   part: string; 
@@ -260,18 +275,3 @@ export interface MostPopularParams {
   regionCode?: string;
   pageToken?: string;
 }
-
-export interface YouTubeVideoItemForSearch {
-  id: { videoId: string } | string;
-  snippet: {
-    title: string;
-    description: string;
-    channelId: string;
-    channelTitle: string;
-    publishedAt: string;
-    thumbnails: { medium: { url: string } };
-  };
-  statistics?: { viewCount?: string };
-  contentDetails?: { duration?: string };
-}
-
