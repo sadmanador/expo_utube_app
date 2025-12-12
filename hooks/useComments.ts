@@ -1,67 +1,48 @@
-// hooks/useComments.ts
-import { useEffect, useState } from "react";
+import { useAsync } from "@/hooks/useAsync";
 import { Comment, UseCommentsProps } from "@/types";
 import { getRequest } from "@/utils/apiService";
+import { useCallback } from "react";
 
 export const useComments = ({ videoId, maxResults = 50 }: UseCommentsProps) => {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Wrap the fetch logic in useCallback
+  const fetchComments = useCallback(async (pageToken = "") => {
+    const endpoint = `commentThreads?part=snippet,replies&videoId=${videoId}&maxResults=${maxResults}&pageToken=${pageToken}`;
 
-  const fetchComments = async (pageToken: string = "") => {
-    try {
-      setLoading(true);
+    const res = await getRequest(endpoint);
 
-      const endpoint = `commentThreads?part=snippet,replies&videoId=${videoId}&maxResults=${maxResults}&pageToken=${pageToken}`;
+    if (res.error) throw new Error(res.error.message || "Failed to fetch comments");
 
-      const res = await getRequest(endpoint);
+    const items = res.data?.items || [];
 
-      if (res.error) {
-        setError(res.error.message);
-        setComments([]);
-        return;
-      }
+    const mapped: Comment[] = items.map((item: any) => {
+      const top = item.snippet.topLevelComment.snippet;
+      const replies =
+        item.replies?.comments?.map((r: any) => {
+          const rs = r.snippet;
+          return {
+            id: r.id,
+            authorDisplayName: rs.authorDisplayName || "Unknown",
+            authorProfileImageUrl: rs.authorProfileImageUrl || "",
+            textOriginal: rs.textOriginal || "",
+            publishedAt: rs.publishedAt || "",
+          };
+        }) || [];
 
-      const items = res.data?.items || [];
+      return {
+        id: item.id,
+        authorDisplayName: top.authorDisplayName || "Unknown",
+        authorProfileImageUrl: top.authorProfileImageUrl || "",
+        textOriginal: top.textOriginal || "",
+        publishedAt: top.publishedAt || "",
+        replies,
+      };
+    });
 
-      const mapped: Comment[] = items.map((item: any) => {
-        const top = item.snippet.topLevelComment.snippet;
-        const replies =
-          item.replies?.comments?.map((r: any) => {
-            const rs = r.snippet;
-            return {
-              id: r.id,
-              authorDisplayName: rs.authorDisplayName || "Unknown",
-              authorProfileImageUrl: rs.authorProfileImageUrl || "",
-              textOriginal: rs.textOriginal || "",
-              publishedAt: rs.publishedAt || "",
-            };
-          }) || [];
+    return mapped;
+  }, [videoId, maxResults]);
 
-        return {
-          id: item.id,
-          authorDisplayName: top.authorDisplayName || "Unknown",
-          authorProfileImageUrl: top.authorProfileImageUrl || "",
-          textOriginal: top.textOriginal || "",
-          publishedAt: top.publishedAt || "",
-          replies,
-        };
-      });
+  // Use useAsync to manage loading, error, and data
+  const { loading, error, data: comments, execute: refetch } = useAsync(fetchComments, [fetchComments]);
 
-      setComments(mapped);
-      setError(null);
-    } catch (err: any) {
-      console.error("Failed to fetch comments:", err);
-      setError(err.message || "Failed to fetch comments");
-      setComments([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchComments();
-  }, [videoId]);
-
-  return { comments, loading, error, refetch: fetchComments };
+  return { comments: comments || [], loading, error, refetch };
 };

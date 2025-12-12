@@ -1,20 +1,19 @@
+import ChannelAvatarButton from "@/components/ChannelAvatarButton/ChannelAvatarButton";
+import StatusView from "@/components/StatusView/StatusView";
+import { useAddVideoToHistory } from "@/hooks/useAddVideoToHistory"; // ✅ Import the hook
+import { useYouTubeShortVideos } from "@/hooks/useYouTubeShortVideos";
+import { YouTubeState } from "@/types";
 import React, { useRef, useState } from "react";
 import {
-  ActivityIndicator,
   Dimensions,
   FlatList,
   StyleSheet,
   Text,
-  View,
+  View
 } from "react-native";
 import YoutubePlayer, {
   InitialPlayerParams,
 } from "react-native-youtube-iframe";
-import ChannelAvatarButton from "@/components/ChannelAvatarButton/ChannelAvatarButton";
-import { useYouTubeShortVideos } from "@/hooks/useYouTubeShortVideos";
-import { YouTubeState } from "@/types";
-import { useAddVideoToHistory } from "@/hooks/useAddVideoToHistory"; // ✅ Import the hook
-import StatusView from "@/components/StatusView/StatusView";
 
 const { width, height } = Dimensions.get("window");
 

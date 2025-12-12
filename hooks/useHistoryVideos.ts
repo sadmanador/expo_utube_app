@@ -1,69 +1,60 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getVideo } from "@/utils/apiService";
 import { VideoItem } from "@/types";
 import { HISTORY_KEY } from "@/constants/videoConfig";
-
-
+import { useAsync } from "@/hooks/useAsync";
 
 export const useHistoryVideos = () => {
-  const [historyVideos, setHistoryVideos] = useState<VideoItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const fetchHistoryVideos = useCallback(async () => {
+    const json = await AsyncStorage.getItem(HISTORY_KEY);
+    const videoIds: string[] = json ? JSON.parse(json) : [];
 
-  const fetchHistoryVideos = async () => {
-    setLoading(true);
-    try {
-      const json = await AsyncStorage.getItem(HISTORY_KEY);
-      const videoIds: string[] = json ? JSON.parse(json) : [];
+    if (!videoIds.length) return [];
 
-      if (!videoIds.length) {
-        setHistoryVideos([]);
-        return;
-      }
+    const res = await getVideo(
+      `/videos?part=snippet,contentDetails,statistics&id=${videoIds.join(",")}`
+    );
 
-      const res = await getVideo(
-        `/videos?part=snippet,contentDetails,statistics&id=${videoIds.join(",")}`
-      );
+    const items: VideoItem[] = (res.data as { items?: VideoItem[] }).items ?? [];
 
-      const items = (res.data as { items?: VideoItem[] }).items ?? [];
-
-      const sorted: VideoItem[] = videoIds
-        .map((id) =>
-          items.find((v) =>
-            typeof v.id === "string"
-              ? v.id === id
-              : v.id &&
-                typeof v.id === "object" &&
-                "videoId" in v.id &&
-                (v.id as { videoId: string }).videoId === id
-          )
+    // Sort videos to match the history order
+    const sorted: VideoItem[] = videoIds
+      .map((id) =>
+        items.find((v) =>
+          typeof v.id === "string"
+            ? v.id === id
+            : v.id &&
+              typeof v.id === "object" &&
+              "videoId" in v.id &&
+              (v.id as { videoId: string }).videoId === id
         )
-        .filter((v): v is VideoItem => v !== undefined);
+      )
+      .filter((v): v is VideoItem => v !== undefined);
 
-      setHistoryVideos(sorted);
-    } catch (err) {
-      console.error("Failed to fetch history videos:", err);
-      setHistoryVideos([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    return sorted;
+  }, []);
 
-  const clearHistory = async () => {
+  // useAsync handles loading, error, and data
+  const { loading, error, data: historyVideos, execute: refetch } = useAsync(fetchHistoryVideos, [fetchHistoryVideos]);
+
+  // Clear history function remains the same
+  const clearHistory = useCallback(async () => {
     try {
       await AsyncStorage.removeItem(HISTORY_KEY);
-      setHistoryVideos([]);
+      refetch(); // optional: reload after clearing
     } catch (err) {
       console.error("Failed to clear history:", err);
     }
-  };
+  }, [refetch]);
 
+  // Automatically refetch when screen is focused
   useFocusEffect(
     useCallback(() => {
-      fetchHistoryVideos();
-    }, [])
+      refetch();
+    }, [refetch])
   );
 
-  return { historyVideos, loading, clearHistory };
+  return { historyVideos: historyVideos || [], loading, error, clearHistory };
 };

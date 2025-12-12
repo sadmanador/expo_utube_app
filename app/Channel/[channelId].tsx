@@ -1,18 +1,17 @@
+import StatusView from "@/components/StatusView/StatusView";
 import VideoCard from "@/components/VideoCard/VideoCard";
+import { useChannelData } from "@/hooks/useChannelData";
+import { value_converter } from "@/utils/converters/value_converter";
 import { useLocalSearchParams } from "expo-router";
+import React from "react";
 import {
-  ActivityIndicator,
   FlatList,
   Image,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import { useChannelData } from "@/hooks/useChannelData";
-import { value_converter } from "@/utils/converters/value_converter";
-import React from "react";
-import StatusView from "@/components/StatusView/StatusView";
 
 const ChannelPage = () => {
   const { channelId } = useLocalSearchParams();
@@ -55,7 +54,7 @@ const ChannelPage = () => {
           <Text style={styles.subText}>
             {subscriberCount} subscribers • {videoCount} videos
           </Text>
-          <Text style={styles.description}>
+          <Text style={styles.description} numberOfLines={8}>
             {channelInfo.snippet.description}
           </Text>
         </View>

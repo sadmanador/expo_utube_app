@@ -1,16 +1,15 @@
-import React from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  ActivityIndicator,
-  StyleSheet,
-  Pressable,
-} from "react-native";
+import StatusView from "@/components/StatusView/StatusView";
 import VideoCard from "@/components/VideoCard/VideoCard";
 import { useHistoryVideos } from "@/hooks/useHistoryVideos";
 import { useRecommendedVideos } from "@/hooks/useRecommendedVideos";
-import StatusView from "@/components/StatusView/StatusView";
+import React from "react";
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  View
+} from "react-native";
 
 const YouPage = () => {
   const { historyVideos, loading, clearHistory } = useHistoryVideos();

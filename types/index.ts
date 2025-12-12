@@ -260,3 +260,18 @@ export interface MostPopularParams {
   regionCode?: string;
   pageToken?: string;
 }
+
+export interface YouTubeVideoItemForSearch {
+  id: { videoId: string } | string;
+  snippet: {
+    title: string;
+    description: string;
+    channelId: string;
+    channelTitle: string;
+    publishedAt: string;
+    thumbnails: { medium: { url: string } };
+  };
+  statistics?: { viewCount?: string };
+  contentDetails?: { duration?: string };
+}
+
