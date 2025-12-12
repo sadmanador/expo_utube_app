@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator, FlatList } from "react-native";
 
 import VideoCard from "@/components/VideoCard/VideoCard";
+import StatusView from "@/components/StatusView/StatusView";
 
 interface YouTubeVideoItem {
   id: { videoId: string } | string;
@@ -52,11 +53,13 @@ const SearchResults = () => {
     }
   }, [searchQuery]);
 
-  if (loading)
-    return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
+  if (loading) {
+    return <StatusView loading style={{ marginTop: 50 }} />;
+  }
 
-  if (error)
-    return <Text style={{ marginTop: 50, color: "red" }}>{error}</Text>;
+  if (error) {
+    return <StatusView error={error} style={{ marginTop: 50 }} />;
+  }
 
   return (
     <View style={{ flex: 1, padding: 10, backgroundColor: "#fff" }}>

@@ -7,11 +7,14 @@ import {
   Text,
   View,
 } from "react-native";
-import YoutubePlayer, { InitialPlayerParams } from "react-native-youtube-iframe";
+import YoutubePlayer, {
+  InitialPlayerParams,
+} from "react-native-youtube-iframe";
 import ChannelAvatarButton from "@/components/ChannelAvatarButton/ChannelAvatarButton";
 import { useYouTubeShortVideos } from "@/hooks/useYouTubeShortVideos";
 import { YouTubeState } from "@/types";
 import { useAddVideoToHistory } from "@/hooks/useAddVideoToHistory"; // ✅ Import the hook
+import StatusView from "@/components/StatusView/StatusView";
 
 const { width, height } = Dimensions.get("window");
 
@@ -20,7 +23,9 @@ const { width, height } = Dimensions.get("window");
 // --------------------
 const FullScreenVideoFeed: React.FC = () => {
   // Typed ref array for YoutubePlayer
-  const playerRefs = useRef<(React.ElementRef<typeof YoutubePlayer> | null)[]>([]);
+  const playerRefs = useRef<(React.ElementRef<typeof YoutubePlayer> | null)[]>(
+    []
+  );
   const [playingIndex, setPlayingIndex] = useState(0);
 
   const { videos, loading } = useYouTubeShortVideos("20", 20);
@@ -29,19 +34,11 @@ const FullScreenVideoFeed: React.FC = () => {
   const addVideoToHistory = useAddVideoToHistory();
 
   if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
+    return <StatusView loading />;
   }
 
-  if (videos.length === 0) {
-    return (
-      <View style={styles.center}>
-        <Text>No videos found.</Text>
-      </View>
-    );
+  if (!loading && videos.length === 0) {
+    return <StatusView error="No videos found." />;
   }
 
   // --------------------
@@ -60,12 +57,14 @@ const FullScreenVideoFeed: React.FC = () => {
         play={playingIndex === index}
         mute={false}
         forceAndroidAutoplay
-        initialPlayerParams={{
-          controls: true,
-          modestbranding: true,
-          rel: false,
-          showinfo: false,
-        } as InitialPlayerParams}
+        initialPlayerParams={
+          {
+            controls: true,
+            modestbranding: true,
+            rel: false,
+            showinfo: false,
+          } as InitialPlayerParams
+        }
         onChangeState={(state: YouTubeState) => {
           if (state === "playing") addVideoToHistory(item.id); // ✅ use hook
         }}

@@ -1,36 +1,39 @@
 import VideoCard from "@/components/VideoCard/VideoCard";
 import { useLocalSearchParams } from "expo-router";
-import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useChannelData } from "@/hooks/useChannelData";
 import { value_converter } from "@/utils/converters/value_converter";
 import React from "react";
+import StatusView from "@/components/StatusView/StatusView";
 
 const ChannelPage = () => {
   const { channelId } = useLocalSearchParams();
   const id = Array.isArray(channelId) ? channelId[0] : channelId;
   const { channelInfo, videos, loading, error } = useChannelData(id);
 
-  if (loading)
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="red" />
-      </View>
-    );
+  if (loading) {
+    return <StatusView loading style={styles.center} />;
+  }
 
-  if (error || !channelInfo)
+  if (error || !channelInfo) {
     return (
-      <View style={styles.center}>
-        <Text>{error || "Channel not found"}</Text>
-      </View>
+      <StatusView error={error || "Channel not found"} style={styles.center} />
     );
+  }
 
   const subscriberCount = value_converter(
     Number(channelInfo.statistics.subscriberCount)
   );
 
-  const videoCount = value_converter(
-    Number(channelInfo.statistics.videoCount)
-  );
+  const videoCount = value_converter(Number(channelInfo.statistics.videoCount));
 
   const renderHeader = () => (
     <View>
@@ -48,9 +51,7 @@ const ChannelPage = () => {
         />
         <View style={{ marginLeft: 12, flex: 1 }}>
           <Text style={styles.channelTitle}>{channelInfo.snippet.title}</Text>
-          <Text style={styles.subText}>
-            @{channelInfo.snippet.customUrl}
-          </Text>
+          <Text style={styles.subText}>@{channelInfo.snippet.customUrl}</Text>
           <Text style={styles.subText}>
             {subscriberCount} subscribers • {videoCount} videos
           </Text>
@@ -80,7 +81,6 @@ const ChannelPage = () => {
 };
 
 export default ChannelPage;
-
 
 const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: "center", alignItems: "center" },

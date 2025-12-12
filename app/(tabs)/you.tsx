@@ -10,6 +10,7 @@ import {
 import VideoCard from "@/components/VideoCard/VideoCard";
 import { useHistoryVideos } from "@/hooks/useHistoryVideos";
 import { useRecommendedVideos } from "@/hooks/useRecommendedVideos";
+import StatusView from "@/components/StatusView/StatusView";
 
 const YouPage = () => {
   const { historyVideos, loading, clearHistory } = useHistoryVideos();
@@ -17,19 +18,13 @@ const YouPage = () => {
   const firstChannelId = historyVideos?.[0]?.channelId;
   const { videos: recommendedVideos } = useRecommendedVideos(firstChannelId);
 
-  if (loading)
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
+  if (loading) {
+    return <StatusView loading style={styles.center} />;
+  }
 
-  if (!historyVideos.length)
-    return (
-      <View style={styles.center}>
-        <Text>No watch history yet.</Text>
-      </View>
-    );
+  if (!historyVideos.length) {
+    return <StatusView error="No watch history yet." style={styles.center} />;
+  }
 
   return (
     <View style={{ paddingVertical: 10 }}>
@@ -84,7 +79,6 @@ const YouPage = () => {
 };
 
 export default YouPage;
-
 
 const styles = StyleSheet.create({
   header: {
