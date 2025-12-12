@@ -2,7 +2,7 @@ import { AxiosRequestConfig, AxiosResponse } from "axios";
 import { StyleProp, ViewStyle } from "react-native";
 
 /* -----------------------------------------------------
- * SHARED TYPES (used across multiple interfaces)
+ * 1. SHARED BASE TYPES
  * ----------------------------------------------------*/
 
 /** (SHARED) A single thumbnail format used by YouTube APIs */
@@ -52,8 +52,13 @@ export interface BaseUIVideo {
 }
 
 /* -----------------------------------------------------
- * API Response Types
+ * 2. API RESPONSE TYPES
  * ----------------------------------------------------*/
+
+interface PageInfo {
+  resultsPerPage: number;
+  totalResults: number;
+}
 
 export interface ApiResponse<T = any> {
   data?: {
@@ -71,13 +76,13 @@ export interface ApiResponse<T = any> {
   } | null;
 }
 
-interface PageInfo {
-  resultsPerPage: number;
-  totalResults: number;
+export interface YouTubeResponse<T> {
+  items: T[];
+  nextPageToken?: string;
 }
 
 /* -----------------------------------------------------
- * Axios Error Type
+ * 3. AXIOS & NETWORK ERROR TYPES
  * ----------------------------------------------------*/
 
 export interface AxiosErrorType {
@@ -92,7 +97,7 @@ export interface AxiosErrorType {
 }
 
 /* -----------------------------------------------------
- * YouTube API Types (using SHARED parts)
+ * 4. RAW YOUTUBE API MODELS
  * ----------------------------------------------------*/
 
 export interface VideoCardItemProps {
@@ -117,7 +122,7 @@ export interface YouTubeVideoItem {
 }
 
 /* -----------------------------------------------------
- * UI Types (Flattened Video Types)
+ * 5. UI-FLATTENED VIDEO MODELS
  * ----------------------------------------------------*/
 
 export interface VideoItem extends BaseUIVideo {
@@ -126,19 +131,19 @@ export interface VideoItem extends BaseUIVideo {
   duration?: string;
 }
 
+export interface ShortVideo extends BaseUIVideo {
+  channelAvatar: string;
+  description: string;
+}
+
 export interface RecommendedVideo extends BaseUIVideo {}
 
 export interface RecommendedListProps {
   videos: RecommendedVideo[];
 }
 
-export interface ShortVideo extends BaseUIVideo {
-  channelAvatar: string;
-  description: string;
-}
-
 /* -----------------------------------------------------
- * Channel Type (using SHARED thumbnails + snippet)
+ * 6. CHANNEL MODEL
  * ----------------------------------------------------*/
 
 export interface ChannelItem {
@@ -186,7 +191,7 @@ export interface ChannelItem {
 }
 
 /* -----------------------------------------------------
- * Comments
+ * 7. COMMENTS
  * ----------------------------------------------------*/
 
 export interface UseCommentsProps {
@@ -194,7 +199,6 @@ export interface UseCommentsProps {
   maxResults?: number;
 }
 
-/** Flattened Comment type */
 export interface Comment {
   id: string;
   authorDisplayName: string;
@@ -210,7 +214,7 @@ export interface CommentsResponse {
 }
 
 /* -----------------------------------------------------
- * Misc
+ * 8. MISC
  * ----------------------------------------------------*/
 
 export interface SafeAreaLayoutProps {
@@ -223,25 +227,19 @@ export interface Props {
   userAvatar: string;
 }
 
-export interface YouTubeResponse<T> {
-  items: T[];
-  nextPageToken?: string;
-}
-
 export interface StatusViewProps {
   loading?: boolean;
   error?: string | null;
   style?: object;
 }
 
-
-export interface InitialPlayerParams  {
+export interface InitialPlayerParams {
   controls?: boolean;
   modestbranding?: boolean;
   rel?: boolean;
   showinfo?: boolean;
   [key: string]: unknown;
-};
+}
 
 export type YouTubeState =
   | "unstarted"
