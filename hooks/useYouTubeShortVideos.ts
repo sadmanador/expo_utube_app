@@ -1,8 +1,8 @@
-import { useCallback } from "react";
-import { ShortVideo } from "@/types";
-import { getVideo } from "@/utils/apiService";
 import { CHANNEL_AVATAR } from "@/constants/api";
 import { useAsync } from "@/hooks/useAsync";
+import { ShortVideo, YouTubeShortVideoItem } from "@/types";
+import { getVideo } from "@/utils/apiService";
+import { useCallback } from "react";
 
 export const useYouTubeShortVideos = (categoryId: string, maxResults: number) => {
   const fetchVideos = useCallback(async (): Promise<ShortVideo[]> => {
@@ -17,13 +17,14 @@ export const useYouTubeShortVideos = (categoryId: string, maxResults: number) =>
     const data = response.data;
     if (!data?.items?.length) return [];
 
-    const mapped: ShortVideo[] = data.items.map((item: any) => ({
-      id: typeof item.id === "string" ? item.id : item.id.videoId,
+    const items = data.items as YouTubeShortVideoItem[];
+    const mapped: ShortVideo[] = items.map((item) => ({
+      id: typeof item.id === "string" ? item.id : item.id,
       title: item.snippet.title,
-      channelTitle: item.snippet.channelTitle,
-      channelId: item.snippet.channelId,
-      channelAvatar: `${CHANNEL_AVATAR}${item.snippet.channelId}`,
-      description: item.snippet.description,
+      channelTitle: item.snippet.channelTitle ?? "",
+      channelId: item.snippet.channelId ?? "",
+      channelAvatar: `${CHANNEL_AVATAR}${item.snippet.channelId ?? ""}`,
+      description: item.snippet.description ?? "",
     }));
 
     return mapped;

@@ -1,5 +1,5 @@
 import { useAsync } from "@/hooks/useAsync";
-import { Comment, UseCommentsProps } from "@/types";
+import { Comment, CommentThreadItemAPI, UseCommentsProps } from "@/types";
 import { getRequest } from "@/utils/apiService";
 import { useCallback } from "react";
 
@@ -12,12 +12,12 @@ export const useComments = ({ videoId, maxResults = 50 }: UseCommentsProps) => {
 
     if (res.error) throw new Error(res.error.message || "Failed to fetch comments");
 
-    const items = res.data?.items || [];
+    const items = (res.data?.items || []) as CommentThreadItemAPI[];
 
-    const mapped: Comment[] = items.map((item: any) => {
+    const mapped: Comment[] = items.map((item) => {
       const top = item.snippet.topLevelComment.snippet;
       const replies =
-        item.replies?.comments?.map((r: any) => {
+        item.replies?.comments?.map((r) => {
           const rs = r.snippet;
           return {
             id: r.id,

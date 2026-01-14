@@ -1,7 +1,6 @@
 import { CHANNEL_AVATAR } from "@/constants/api";
 import { RecommendedListProps, RecommendedVideo } from "@/types";
-
-import { value_converter } from "@/utils/converters/value_converter";
+import { formatViewCount } from "@/utils/converters/value_converter";
 import { useRouter } from "expo-router";
 import moment from "moment";
 import React from "react";
@@ -47,7 +46,7 @@ const RecommendedList: React.FC<RecommendedListProps> = ({ videos }) => {
 
             <Text style={RecommendedListStyles.subText}>
               {item.channelTitle}{" "}
-              {views ? `• ${value_converter(views)} views` : ""}{" "}
+              {views ? `• ${formatViewCount(views)} views` : ""}{" "}
               {item.publishedAt
                 ? `• ${moment(item.publishedAt).fromNow()}`
                 : ""}

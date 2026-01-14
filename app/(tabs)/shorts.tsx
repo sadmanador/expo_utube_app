@@ -1,18 +1,18 @@
 import ChannelAvatarButton from "@/components/ChannelAvatarButton/ChannelAvatarButton";
 import StatusView from "@/components/StatusView/StatusView";
-import { useAddVideoToHistory } from "@/hooks/useAddVideoToHistory"; // ✅ Import the hook
+import { useAddVideoToHistory } from "@/hooks/useAddVideoToHistory";
 import { useYouTubeShortVideos } from "@/hooks/useYouTubeShortVideos";
-import { YouTubeState } from "@/types";
+import { ShortVideo, YouTubeState } from "@/types";
 import React, { useRef, useState } from "react";
 import {
-  Dimensions,
-  FlatList,
-  StyleSheet,
-  Text,
-  View
+    Dimensions,
+    FlatList,
+    StyleSheet,
+    Text,
+    View
 } from "react-native";
 import YoutubePlayer, {
-  InitialPlayerParams,
+    InitialPlayerParams,
 } from "react-native-youtube-iframe";
 
 const { width, height } = Dimensions.get("window");
@@ -20,7 +20,7 @@ const { width, height } = Dimensions.get("window");
 // --------------------
 // Component
 // --------------------
-const FullScreenVideoFeed: React.FC = () => {
+const ShortsScreen: React.FC = () => {
   // Typed ref array for YoutubePlayer
   const playerRefs = useRef<(React.ElementRef<typeof YoutubePlayer> | null)[]>(
     []
@@ -29,7 +29,7 @@ const FullScreenVideoFeed: React.FC = () => {
 
   const { videos, loading } = useYouTubeShortVideos("20", 20);
 
-  // ✅ Use the hook to add video to history
+  // Use the hook to add video to history
   const addVideoToHistory = useAddVideoToHistory();
 
   if (loading) {
@@ -43,7 +43,7 @@ const FullScreenVideoFeed: React.FC = () => {
   // --------------------
   // Render each video
   // --------------------
-  const renderItem = ({ item, index }: { item: any; index: number }) => (
+  const renderItem = ({ item, index }: { item: ShortVideo; index: number }) => (
     <View style={{ width, height }}>
       {/* YouTube Player */}
       <YoutubePlayer
@@ -65,7 +65,7 @@ const FullScreenVideoFeed: React.FC = () => {
           } as InitialPlayerParams
         }
         onChangeState={(state: YouTubeState) => {
-          if (state === "playing") addVideoToHistory(item.id); // ✅ use hook
+          if (state === "playing") addVideoToHistory(item.id);
         }}
       />
 
@@ -111,7 +111,7 @@ const FullScreenVideoFeed: React.FC = () => {
   );
 };
 
-export default FullScreenVideoFeed;
+export default ShortsScreen;
 
 // --------------------
 // Styles

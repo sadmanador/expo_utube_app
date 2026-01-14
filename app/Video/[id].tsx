@@ -1,27 +1,27 @@
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  Dimensions,
   ScrollView,
   StyleSheet,
   Text,
   View,
-  Dimensions,
 } from "react-native";
 import YoutubePlayer from "react-native-youtube-iframe";
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
-import moment from "moment";
 
 import ChannelAvatarButton from "@/components/ChannelAvatarButton/ChannelAvatarButton";
 import CommentsSection from "@/components/CommentsSection/CommentsSection";
 import RecommendedList from "@/components/RecommendedList/RecommendedList";
+import StatusView from "@/components/StatusView/StatusView";
 import { CHANNEL_AVATAR } from "@/constants/api";
+import { PLAYER_HEIGHT } from "@/constants/videoConfig";
+import { useAddVideoToHistory } from "@/hooks/useAddVideoToHistory"; // ✅ import hook
 import { useFetch } from "@/hooks/useFetch";
 import { useRecommendedVideos } from "@/hooks/useRecommendedVideos";
 import { VideoItem, YouTubeVideoItem } from "@/types";
 import { parseYouTubeDuration } from "@/utils/converters/duration_converter";
-import { value_converter } from "@/utils/converters/value_converter";
-import { PLAYER_HEIGHT } from "@/constants/videoConfig";
-import StatusView from "@/components/StatusView/StatusView";
-import { useAddVideoToHistory } from "@/hooks/useAddVideoToHistory"; // ✅ import hook
+import { formatViewCount } from "@/utils/converters/value_converter";
 
 const { width } = Dimensions.get("window");
 
@@ -130,7 +130,7 @@ const VideoPage = () => {
             <View style={{ flex: 1 }}>
               <Text style={styles.channelName}>{video.channelTitle}</Text>
               <Text style={styles.subText}>
-                {value_converter(video.viewCount)} views •{" "}
+                {formatViewCount(video.viewCount)} views •{" "}
                 {moment(video.publishedAt).fromNow()} •{" "}
                 {parseYouTubeDuration(video.duration)}
               </Text>

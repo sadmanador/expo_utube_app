@@ -1,7 +1,6 @@
-// utils/api.ts
-import axios, { AxiosRequestConfig } from "axios";
-import { ApiResponse, AxiosErrorType } from "@/types";
 import { API_KEY, BASE_URL } from "@/constants/api";
+import { ApiResponse, AxiosErrorType } from "@/types";
+import axios, { AxiosRequestConfig } from "axios";
 
 // Single Axios instance with API key and baseURL
 const axiosInstance = axios.create({
@@ -25,40 +24,15 @@ export const getRequest = async (
       error: {
         message: `Failed to fetch data from ${url}`,
         status: error.response?.status,
-        details: error.response?.data,
+        details: error.response?.data as Record<string, unknown>,
         name: "",
       },
     };
   }
 };
 
-// Specific API functions
-export const getVideo = (endpoint: string, categoryId?: string) =>
-  getRequest(endpoint); 
-
-export const getChannel = (channelId: string) =>
-  getRequest(`channels`, {
-    params: {
-      part: "snippet,brandingSettings,statistics,contentDetails",
-      id: channelId,
-    },
-  });
-
-export const fetchComments = async ({
-  videoId,
-  pageToken = "",
-}: {
-  videoId: string;
-  pageToken?: string;
-}) => {
-  const url = `${BASE_URL}/commentThreads?part=snippet&videoId=${videoId}&pageToken=${pageToken}&maxResults=20&key=${API_KEY}`;
-
-  const res = await fetch(url);
-  const data = await res.json();
-
-  if (data.error) throw new Error(data.error.message);
-
-  return data;
-};
+// Generic video/content fetcher
+export const getVideo = (endpoint: string, _categoryId?: string) =>
+  getRequest(endpoint);
 
 export default axiosInstance;

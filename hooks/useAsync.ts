@@ -1,8 +1,8 @@
-import { useEffect, useState, useCallback } from "react";
+import { DependencyList, useCallback, useEffect, useState } from "react";
 
 export function useAsync<T>(
   asyncFn: () => Promise<T>,
-  deps: any[] = [],
+  deps: DependencyList = [],
   autoRun = true // whether to run automatically on mount / deps change
 ) {
   const [loading, setLoading] = useState(autoRun);
@@ -16,8 +16,9 @@ export function useAsync<T>(
       const result = await asyncFn();
       setData(result);
       return result;
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Something went wrong";
+      setError(message);
       setData(null);
       throw err;
     } finally {
@@ -29,6 +30,7 @@ export function useAsync<T>(
     if (autoRun) {
       execute();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [execute, ...deps]);
 
   return { loading, error, data, execute };

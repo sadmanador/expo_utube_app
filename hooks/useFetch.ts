@@ -3,9 +3,10 @@ import { MostPopularParams, YouTubeResponse, YouTubeVideoItem } from "@/types";
 import axiosInstance from "@/utils/apiService";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
-
-
-export const useFetch = <T>(endpoint: string, params?: Record<string, any>) => {
+export const useFetch = <T>(
+  endpoint: string,
+  params?: Record<string, string | number | boolean | undefined>
+) => {
   return useQuery<YouTubeResponse<T>>({
     queryKey: [endpoint, params],
     queryFn: async () => {
@@ -14,7 +15,6 @@ export const useFetch = <T>(endpoint: string, params?: Record<string, any>) => {
     },
   });
 };
-
 
 export const useInfiniteVideos = (params?: MostPopularParams) => {
   return useInfiniteQuery<YouTubeResponse<YouTubeVideoItem>>({
@@ -29,4 +29,3 @@ export const useInfiniteVideos = (params?: MostPopularParams) => {
     initialPageParam: "",
   });
 };
-

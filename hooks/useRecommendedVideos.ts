@@ -1,7 +1,7 @@
-import { useCallback } from "react";
-import { RecommendedVideo, YouTubeVideoItem, ApiResponse } from "@/types";
-import { getVideo } from "@/utils/apiService";
 import { useAsync } from "@/hooks/useAsync";
+import { RecommendedVideo, YouTubeVideoItem } from "@/types";
+import { getVideo } from "@/utils/apiService";
+import { useCallback } from "react";
 
 const MAX_RESULTS = 20;
 
@@ -10,26 +10,26 @@ export const useRecommendedVideos = (channelId?: string) => {
     if (!channelId) return [];
 
     // Step 1: Fetch most recent videos from the channel
-    const searchResponse: ApiResponse<YouTubeVideoItem> = await getVideo(
+    const searchResponse = await getVideo(
       `search?part=snippet&channelId=${channelId}&type=video&order=date&maxResults=${MAX_RESULTS}`
     );
     if (searchResponse.error) throw new Error(searchResponse.error.message);
 
-    const searchItems = searchResponse.data?.items || [];
+    const searchItems = (searchResponse.data?.items || []) as YouTubeVideoItem[];
     if (!searchItems.length) return [];
 
     // Step 2: Get statistics and contentDetails for these videos
     const ids = searchItems
-      .map((item: any) => (typeof item.id === "string" ? item.id : item.id.videoId))
+      .map((item) => (typeof item.id === "string" ? item.id : item.id.videoId))
       .filter(Boolean)
       .join(",");
 
-    const detailsResponse: ApiResponse<YouTubeVideoItem> = await getVideo(
+    const detailsResponse = await getVideo(
       `videos?part=snippet,statistics,contentDetails&id=${ids}`
     );
     if (detailsResponse.error) throw new Error(detailsResponse.error.message);
 
-    const detailsItems = detailsResponse.data?.items || [];
+    const detailsItems = (detailsResponse.data?.items || []) as YouTubeVideoItem[];
 
     // Step 3: Map to RecommendedVideo
     const mapped: RecommendedVideo[] = detailsItems.map((item) => ({

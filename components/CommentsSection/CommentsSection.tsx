@@ -1,18 +1,18 @@
 // components/CommentsSection.tsx
-import React, { useState } from "react";
-import { Comment, Props } from "@/types";
 import { useComments } from "@/hooks/useComments";
+import { Comment, CommentsSectionProps } from "@/types";
+import React, { useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
+    ActivityIndicator,
+    Image,
+    Pressable,
+    ScrollView,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 
-const CommentsSection: React.FC<Props> = ({ videoId, userAvatar }) => {
+const CommentsSection: React.FC<CommentsSectionProps> = ({ videoId, userAvatar }) => {
   const { comments, loading } = useComments({ videoId });
   const [collapsed, setCollapsed] = useState(true);
   const [input, setInput] = useState("");

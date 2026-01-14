@@ -1,7 +1,7 @@
 import { CHANNEL_AVATAR } from "@/constants/api";
-import { VideoCardProps, VideoCardItemProps, VideoItem } from "@/types";
+import { VideoCardItemProps, VideoCardProps, VideoItem } from "@/types";
 import { parseYouTubeDuration } from "@/utils/converters/duration_converter";
-import { value_converter } from "@/utils/converters/value_converter";
+import { formatViewCount } from "@/utils/converters/value_converter";
 import { useRouter } from "expo-router";
 import moment from "moment";
 import React from "react";
@@ -48,7 +48,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ item }) => {
               {video.title}
             </Text>
             <Text style={VideoCardStyles.subText}>
-              {video.channelTitle} • {value_converter(Number(video.viewCount))} views •{" "}
+              {video.channelTitle} • {formatViewCount(Number(video.viewCount))} views •{" "}
               {moment(video.publishedAt).fromNow()}
             </Text>
           </View>
@@ -63,7 +63,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ item }) => {
   const videoId = typeof api.id === "string" ? api.id : api.id.videoId;
   const duration = api.contentDetails?.duration || "";
   const views = api.statistics?.viewCount
-    ? value_converter(Number(api.statistics.viewCount))
+    ? formatViewCount(Number(api.statistics.viewCount))
     : "";
 
   return (

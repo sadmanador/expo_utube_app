@@ -5,8 +5,8 @@ import { FlatList, Text, View } from "react-native";
 
 import StatusView from "@/components/StatusView/StatusView";
 import VideoCard from "@/components/VideoCard/VideoCard";
-import { YouTubeVideoItemForSearch } from "@/types";
 import { useAsync } from "@/hooks/useAsync";
+import { YouTubeVideoItemForSearch } from "@/types";
 
 const SearchResults = () => {
   const { searchQuery } = useLocalSearchParams() as { searchQuery?: string };
@@ -26,7 +26,7 @@ const SearchResults = () => {
     if (res.error) throw new Error(res.error.message);
     if (!res.data?.items?.length) throw new Error("No results found.");
 
-    return res.data.items;
+    return res.data.items as YouTubeVideoItemForSearch[];
   }, [searchQuery]);
 
   // Show status

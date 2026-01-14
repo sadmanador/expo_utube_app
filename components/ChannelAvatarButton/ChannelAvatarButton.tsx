@@ -1,14 +1,8 @@
 // components/ChannelAvatarButton.tsx
-import React from "react";
-import { Pressable, Image } from "react-native";
+import { ChannelAvatarButtonProps } from "@/types";
 import { useRouter } from "expo-router";
-
-interface ChannelAvatarButtonProps {
-  channelId: string;   // required to build default route
-  uri: string;         // avatar image URL
-  size?: number;       // optional size, default 40
-  to?: string;         // optional custom route
-}
+import React from "react";
+import { Image, Pressable } from "react-native";
 
 const ChannelAvatarButton: React.FC<ChannelAvatarButtonProps> = ({
   channelId,
@@ -16,7 +10,6 @@ const ChannelAvatarButton: React.FC<ChannelAvatarButtonProps> = ({
   size = 40,
 }) => {
   const router = useRouter();
-
 
   return (
     <Pressable onPress={() => router.push(`/Channel/${channelId}`)}>

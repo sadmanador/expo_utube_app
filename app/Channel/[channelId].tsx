@@ -1,7 +1,7 @@
 import StatusView from "@/components/StatusView/StatusView";
 import VideoCard from "@/components/VideoCard/VideoCard";
 import { useChannelData } from "@/hooks/useChannelData";
-import { value_converter } from "@/utils/converters/value_converter";
+import { formatViewCount } from "@/utils/converters/value_converter";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
 import {
@@ -28,11 +28,11 @@ const ChannelPage = () => {
     );
   }
 
-  const subscriberCount = value_converter(
+  const subscriberCount = formatViewCount(
     Number(channelInfo.statistics.subscriberCount)
   );
 
-  const videoCount = value_converter(Number(channelInfo.statistics.videoCount));
+  const videoCount = formatViewCount(Number(channelInfo.statistics.videoCount));
 
   const renderHeader = () => (
     <View>
@@ -71,7 +71,7 @@ const ChannelPage = () => {
   return (
     <FlatList
       data={videos}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item) => typeof item.id === "string" ? item.id : item.id.videoId}
       renderItem={({ item }) => <VideoCard item={item} />}
       ListHeaderComponent={renderHeader}
       contentContainerStyle={{ paddingBottom: 20 }}

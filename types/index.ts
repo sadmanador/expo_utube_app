@@ -1,5 +1,6 @@
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 import { StyleProp, ViewStyle } from "react-native";
+import { DependencyList } from "react";
 
 /* -----------------------------------------------------
  * 1. SHARED BASE TYPES
@@ -15,6 +16,13 @@ export interface Thumbnails {
   default?: Thumbnail;
   medium?: Thumbnail;
   high?: Thumbnail;
+  standard?: Thumbnail;
+  maxres?: Thumbnail;
+}
+
+export interface Localized {
+  title: string;
+  description: string;
 }
 
 export interface BaseSnippet {
@@ -54,7 +62,7 @@ interface PageInfo {
   totalResults: number;
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   data?: {
     etag: string;
     items: T[];
@@ -101,9 +109,22 @@ export interface YouTubeVideoItem {
   contentDetails?: VideoContentDetails;
 }
 
-export interface PlaylistItem {
+export interface PlaylistItemAPI {
   contentDetails: { videoId: string };
   snippet?: BaseSnippet;
+}
+
+export interface YouTubeShortVideoItem {
+  kind: string;
+  etag: string;
+  id: string;
+  snippet: BaseSnippet & {
+    tags?: string[];
+    categoryId?: string;
+    liveBroadcastContent?: string;
+    localized?: Localized;
+    defaultAudioLanguage?: string;
+  };
 }
 
 /** Raw YouTube API prop for VideoCard */
@@ -126,7 +147,47 @@ export interface YouTubeVideoItemForSearch {
 }
 
 /* -----------------------------------------------------
- * 5. UI-FLATTENED VIDEO MODELS
+ * 5. COMMENTS API TYPES
+ * ----------------------------------------------------*/
+
+export interface CommentSnippet {
+  authorDisplayName: string;
+  authorProfileImageUrl: string;
+  textOriginal: string;
+  publishedAt: string;
+}
+
+export interface CommentThreadItemAPI {
+  id: string;
+  snippet: {
+    topLevelComment: { snippet: CommentSnippet };
+  };
+  replies?: {
+    comments: Array<{ id: string; snippet: CommentSnippet }>;
+  };
+}
+
+export interface UseCommentsProps {
+  videoId: string;
+  maxResults?: number;
+}
+
+export interface Comment {
+  id: string;
+  authorDisplayName: string;
+  authorProfileImageUrl: string;
+  textOriginal: string;
+  publishedAt: string;
+  replies?: Comment[];
+}
+
+export interface CommentsResponse {
+  items: Comment[];
+  nextPageToken?: string;
+}
+
+/* -----------------------------------------------------
+ * 6. UI-FLATTENED VIDEO MODELS
  * ----------------------------------------------------*/
 
 export interface VideoItem extends BaseUIVideo {
@@ -158,7 +219,7 @@ export type VideoCardProps =
   | { item: RecommendedVideo }; // minimal recommended UI item
 
 /* -----------------------------------------------------
- * 6. CHANNEL MODEL
+ * 7. CHANNEL MODEL
  * ----------------------------------------------------*/
 
 export interface ChannelItem {
@@ -206,30 +267,7 @@ export interface ChannelItem {
 }
 
 /* -----------------------------------------------------
- * 7. COMMENTS
- * ----------------------------------------------------*/
-
-export interface UseCommentsProps {
-  videoId: string;
-  maxResults?: number;
-}
-
-export interface Comment {
-  id: string;
-  authorDisplayName: string;
-  authorProfileImageUrl: string;
-  textOriginal: string;
-  publishedAt: string;
-  replies?: Comment[];
-}
-
-export interface CommentsResponse {
-  items: Comment[];
-  nextPageToken?: string;
-}
-
-/* -----------------------------------------------------
- * 8. MISC UI TYPES
+ * 8. COMPONENT PROPS
  * ----------------------------------------------------*/
 
 export interface SafeAreaLayoutProps {
@@ -237,7 +275,7 @@ export interface SafeAreaLayoutProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export interface Props {
+export interface CommentsSectionProps {
   videoId: string;
   userAvatar: string;
 }
@@ -248,12 +286,11 @@ export interface StatusViewProps {
   style?: object;
 }
 
-export interface InitialPlayerParams {
-  controls?: boolean;
-  modestbranding?: boolean;
-  rel?: boolean;
-  showinfo?: boolean;
-  [key: string]: unknown;
+export interface ChannelAvatarButtonProps {
+  channelId: string;
+  uri: string;
+  size?: number;
+  to?: string;
 }
 
 export type YouTubeState =
@@ -269,9 +306,15 @@ export type YouTubeState =
  * ----------------------------------------------------*/
 
 export interface MostPopularParams {
-  part: string; 
+  part: string;
   chart: "mostPopular";
   maxResults?: number;
   regionCode?: string;
   pageToken?: string;
 }
+
+/* -----------------------------------------------------
+ * 10. HOOK UTILITY TYPES
+ * ----------------------------------------------------*/
+
+export type AsyncDependencyList = DependencyList;

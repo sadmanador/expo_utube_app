@@ -1,4 +1,7 @@
-export const value_converter = (value?: string | number): string => {
+/**
+ * Formats a view count number into a readable string with K/M suffixes
+ */
+export const formatViewCount = (value?: string | number): string => {
   if (value === undefined || value === null) return "0";
 
   const numValue = typeof value === "string" ? parseFloat(value) : value;

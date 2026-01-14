@@ -1,4 +1,5 @@
-import { useAsync } from "@/hooks/useAsync"; // our reusable wrapper
+import { useAsync } from "@/hooks/useAsync";
+import { ChannelItem, PlaylistItemAPI, YouTubeVideoItem } from "@/types";
 import { getVideo } from "@/utils/apiService";
 import { useCallback } from "react";
 
@@ -10,7 +11,7 @@ export const useChannelData = (channelId?: string) => {
     const channelRes = await getVideo(
       `/channels?part=snippet,brandingSettings,statistics,contentDetails&id=${channelId}`
     );
-    const channelData = channelRes.data?.items?.[0];
+    const channelData = channelRes.data?.items?.[0] as ChannelItem | undefined;
     if (!channelData) throw new Error("Channel not found");
 
     // Get uploads playlist
@@ -22,8 +23,9 @@ export const useChannelData = (channelId?: string) => {
       `/playlistItems?part=snippet,contentDetails&playlistId=${uploadsPlaylistId}&maxResults=20`
     );
 
-    const videoIds = playlistRes.data?.items
-      ?.map((i: any) => i.contentDetails.videoId)
+    const playlistItems = playlistRes.data?.items as PlaylistItemAPI[] | undefined;
+    const videoIds = playlistItems
+      ?.map((i) => i.contentDetails.videoId)
       .join(",");
 
     // Fetch video details
@@ -33,7 +35,7 @@ export const useChannelData = (channelId?: string) => {
 
     return {
       channelInfo: channelData,
-      videos: videosRes.data?.items || [],
+      videos: (videosRes.data?.items as YouTubeVideoItem[]) || [],
     };
   }, [channelId]);
 
